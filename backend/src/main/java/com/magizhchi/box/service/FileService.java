@@ -166,9 +166,7 @@ public class FileService {
                     .key(s3Key)
                     .build());
         } catch (Exception e) {
-            // S3 cleanup failing does not block the delete for the user.
-            // The orphaned object will be cleaned up by an S3 lifecycle rule.
-            log.warn("S3 delete failed for key '{}': {}", s3Key, e.getMessage());
+            log.error("S3 delete failed for key '{}': {}", s3Key, e.getMessage());
         }
     }
 
