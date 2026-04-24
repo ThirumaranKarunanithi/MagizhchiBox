@@ -80,7 +80,7 @@ public class FolderService {
         fileMetadataRepository.detachFilesFromFolders(ids);
 
         // Delete folders leaf-first so FK (parent_id) is never violated
-        folderRepository.deleteAllByIds(ids);
+        folderRepository.bulkDeleteByIds(ids);
 
         log.info("Folder '{}' (id={}) and {} sub-folder(s) deleted for user {}",
                 folder.getName(), folderId, ids.size() - 1, user.getEmail());

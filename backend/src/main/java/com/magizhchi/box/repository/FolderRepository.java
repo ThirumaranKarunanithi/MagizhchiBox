@@ -29,7 +29,7 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
     // All folders in folder tree (for recursive delete/move)
     List<Folder> findByUserAndParent(User user, Folder parent);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("DELETE FROM Folder f WHERE f.id IN :ids")
-    void deleteAllByIds(@Param("ids") List<Long> ids);
+    void bulkDeleteByIds(@Param("ids") List<Long> ids);
 }

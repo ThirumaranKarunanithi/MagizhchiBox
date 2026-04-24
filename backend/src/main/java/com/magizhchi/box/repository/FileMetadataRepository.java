@@ -24,7 +24,7 @@ public interface FileMetadataRepository extends JpaRepository<FileMetadata, Long
     @Query("SELECT COALESCE(SUM(f.fileSizeBytes), 0) FROM FileMetadata f WHERE f.user = :user AND f.deleted = false")
     Long sumFileSizeByUser(User user);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE FileMetadata f SET f.folder = null WHERE f.folder.id IN :folderIds AND f.deleted = false")
     void detachFilesFromFolders(@Param("folderIds") List<Long> folderIds);
 }

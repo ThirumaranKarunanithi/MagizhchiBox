@@ -61,7 +61,11 @@ public class FileService {
         // Resolve folder (null = root)
         Folder folder = folderService.resolveFolderEntity(user, folderId);
 
-        String originalFileName = file.getOriginalFilename();
+        // Some browsers send the full relative path as filename — keep only the last segment
+        String rawName = file.getOriginalFilename();
+        String originalFileName = (rawName != null && rawName.contains("/"))
+                ? rawName.substring(rawName.lastIndexOf('/') + 1)
+                : rawName;
         String s3Key;
         if (relativePath != null && !relativePath.isBlank()) {
             s3Key = "user-" + user.getId() + "/" + sanitizePath(relativePath);
