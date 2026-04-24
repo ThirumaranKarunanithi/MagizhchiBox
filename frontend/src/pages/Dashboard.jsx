@@ -16,6 +16,7 @@ export default function Dashboard() {
   // Folder navigation state
   const [folderPath, setFolderPath] = useState([]) // [{id, name}, ...]  — root = empty
   const currentFolderId = folderPath.length > 0 ? folderPath[folderPath.length - 1].id : null
+  const currentFolderName = folderPath.length > 0 ? folderPath[folderPath.length - 1].name : null
 
   // Files in current folder
   const [files, setFiles] = useState([])
@@ -75,9 +76,9 @@ export default function Dashboard() {
   const handleCreateFolder = async (name) => {
     setCreatingFolder(true)
     try {
-      await createFolder(name, currentFolderId)
+      const folder = await createFolder(name, currentFolderId)
       setShowCreateModal(false)
-      refreshFolders()
+      navigateInto(folder)
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to create folder')
     } finally {
@@ -155,6 +156,7 @@ export default function Dashboard() {
             {/* Upload area */}
             <FileUpload
               currentFolderId={currentFolderId}
+              currentFolderName={currentFolderName}
               onUploaded={handleUploaded}
               onFoldersCreated={refreshFolders}
             />

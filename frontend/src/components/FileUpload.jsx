@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { uploadFile } from '../services/fileService'
 import { createFolder } from '../services/folderService'
 
-export default function FileUpload({ currentFolderId, onUploaded, onFoldersCreated }) {
+export default function FileUpload({ currentFolderId, currentFolderName, onUploaded, onFoldersCreated }) {
   const [mode, setMode] = useState('file') // 'file' | 'folder'
   const [dragging, setDragging] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -125,13 +125,21 @@ export default function FileUpload({ currentFolderId, onUploaded, onFoldersCreat
     <div className="card">
       {/* Mode toggle */}
       <div className="flex items-center gap-3 mb-4">
-        <h3 className="font-semibold text-gray-800 flex-1 flex items-center gap-2">
-          <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-          </svg>
-          Upload
-        </h3>
+        <div className="flex-1">
+          <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+            <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+            Upload
+          </h3>
+          <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
+            <svg className="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
+            </svg>
+            Saving to: <span className="font-medium text-gray-600">{currentFolderName || 'My Files (root)'}</span>
+          </p>
+        </div>
         <div className="flex bg-gray-100 rounded-lg p-0.5 gap-0.5">
           {['file', 'folder'].map((m) => (
             <button

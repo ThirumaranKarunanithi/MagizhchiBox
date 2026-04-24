@@ -14,6 +14,7 @@ frontend/dist/
 frontend/.env
 frontend/.env.local
 frontend/.env.*.local
+# .env.production is intentionally NOT ignored — it only contains the backend URL, no secrets
 
 # ── OS / editor ──────────────────────────────────────────────────────────────
 .DS_Store
