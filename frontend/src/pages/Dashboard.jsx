@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Navbar from '../components/Navbar'
 import FileUpload from '../components/FileUpload'
-import FileList from '../components/FileList'
-import FolderBrowser from '../components/FolderBrowser'
+import FileBrowser from '../components/FileBrowser'
 import CreateFolderModal from '../components/CreateFolderModal'
 import DeviceManager from '../components/DeviceManager'
 import { listFiles } from '../services/fileService'
@@ -109,81 +108,102 @@ export default function Dashboard() {
 
         {activeTab === 'files' && (
           <div className="space-y-4">
-            {/* Breadcrumb + New Folder button */}
+            {/* Breadcrumb + Back button + New Folder button */}
             <div className="flex items-center justify-between gap-2 flex-wrap">
-              <nav className="flex items-center gap-1 text-sm flex-wrap">
-                <button
-                  onClick={() => setFolderPath([])}
-                  className={`font-medium transition-colors ${
-                    folderPath.length === 0
-                      ? 'text-gray-900 cursor-default'
-                      : 'text-blue-600 hover:text-blue-700'
-                  }`}
-                >
-                  My Files
-                </button>
-                {folderPath.map((crumb, idx) => (
-                  <span key={crumb.id} className="flex items-center gap-1">
-                    <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
+              <div className="flex items-center gap-2">
+                {/* Back button — only shown when inside a folder */}
+                {folderPath.length > 0 && (
+                  <button
+                    onClick={() => {
+                      if (folderPath.length === 1) setFolderPath([])
+                      else setFolderPath((prev) => prev.slice(0, -1))
+                      setFiles([])
+                    }}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm font-medium
+                               bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
+                    title="Go back"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
                     </svg>
-                    <button
-                      onClick={() => navigateTo(idx)}
-                      className={`font-medium transition-colors ${
-                        idx === folderPath.length - 1
-                          ? 'text-gray-900 cursor-default'
-                          : 'text-blue-600 hover:text-blue-700'
-                      }`}
-                    >
-                      {crumb.name}
-                    </button>
-                  </span>
-                ))}
-              </nav>
+                    Back
+                  </button>
+                )}
 
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="btn-secondary flex items-center gap-1.5 text-sm"
-                disabled={creatingFolder}
-              >
-                <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
-                </svg>
-                New Folder
-              </button>
+                {/* Breadcrumb */}
+                <nav className="flex items-center gap-1 text-sm flex-wrap">
+                  <button
+                    onClick={() => { setFolderPath([]); setFiles([]) }}
+                    className={`font-medium transition-colors flex items-center gap-1 ${
+                      folderPath.length === 0
+                        ? 'text-gray-900 cursor-default'
+                        : 'text-blue-600 hover:text-blue-700'
+                    }`}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    My Files
+                  </button>
+                  {folderPath.map((crumb, idx) => (
+                    <span key={crumb.id} className="flex items-center gap-1">
+                      <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
+                      </svg>
+                      <button
+                        onClick={() => { navigateTo(idx) }}
+                        className={`font-medium transition-colors ${
+                          idx === folderPath.length - 1
+                            ? 'text-gray-900 cursor-default'
+                            : 'text-blue-600 hover:text-blue-700'
+                        }`}
+                      >
+                        {crumb.name}
+                      </button>
+                    </span>
+                  ))}
+                </nav>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Upload buttons */}
+                <FileUpload
+                  currentFolderId={currentFolderId}
+                  onUploaded={handleUploaded}
+                  onFoldersCreated={refreshFolders}
+                />
+
+                {/* New Folder button */}
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium
+                             bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 transition-colors"
+                  disabled={creatingFolder}
+                >
+                  <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
+                  </svg>
+                  New Folder
+                </button>
+              </div>
             </div>
 
-            {/* Upload area */}
-            <FileUpload
-              currentFolderId={currentFolderId}
-              currentFolderName={currentFolderName}
-              onUploaded={handleUploaded}
-              onFoldersCreated={refreshFolders}
-            />
-
-            {/* Folder grid */}
-            <FolderBrowser
-              currentFolderId={currentFolderId}
-              onNavigate={navigateInto}
-              onFolderDeleted={refreshFolders}
-              refreshKey={folderRefreshKey}
-            />
-
-            {/* File list */}
-            {loadingFiles ? (
-              <div className="card flex justify-center py-12">
-                <svg className="animate-spin h-7 w-7 text-blue-500" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-                </svg>
-              </div>
-            ) : fetchError ? (
+            {/* Unified folder + file browser */}
+            {fetchError ? (
               <div className="card flex items-center justify-between">
                 <p className="text-red-600 text-sm">{fetchError}</p>
                 <button onClick={fetchFiles} className="btn-secondary text-sm">Retry</button>
               </div>
             ) : (
-              <FileList files={files} onDeleted={handleDeleted} />
+              <FileBrowser
+                currentFolderId={currentFolderId}
+                files={files}
+                loadingFiles={loadingFiles}
+                onNavigate={navigateInto}
+                onFolderDeleted={refreshFolders}
+                onFileDeleted={handleDeleted}
+                refreshKey={folderRefreshKey}
+              />
             )}
           </div>
         )}

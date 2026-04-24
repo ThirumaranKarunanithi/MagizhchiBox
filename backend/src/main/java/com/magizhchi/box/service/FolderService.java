@@ -71,21 +71,28 @@ public class FolderService {
     public void deleteFolder(User user, Long folderId) {
         Folder folder = folderRepository.findByIdAndUser(folderId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Folder not found"));
-        // Move all files in this tree to root (null folder) so they aren't lost
-        moveFilesInTreeToRoot(user, folder);
-        folderRepository.delete(folder);
+        deleteFolderRecursive(user, folder);
         log.info("Folder deleted: '{}' (id={}) for user {}", folder.getName(), folderId, user.getEmail());
     }
 
-    /** Recursively un-parents every file in this folder and its sub-folders. */
-    private void moveFilesInTreeToRoot(User user, Folder folder) {
+    /**
+     * Recursively moves files to root and deletes sub-folders bottom-up,
+     * then deletes the folder itself. This avoids FK violations from children
+     * still referencing a parent that is being deleted.
+     */
+    private void deleteFolderRecursive(User user, Folder folder) {
+        // Move files in this folder to root so they are not lost
         List<FileMetadata> files = fileMetadataRepository
                 .findByUserAndFolderAndDeletedFalseOrderByUploadedAtDesc(user, folder);
         files.forEach(f -> f.setFolder(null));
         fileMetadataRepository.saveAll(files);
 
-        folderRepository.findByUserAndParent(user, folder)
-                .forEach(sub -> moveFilesInTreeToRoot(user, sub));
+        // Recursively delete all sub-folders first (bottom-up)
+        for (Folder sub : folderRepository.findByUserAndParent(user, folder)) {
+            deleteFolderRecursive(user, sub);
+        }
+
+        folderRepository.delete(folder);
     }
 
     /** Resolve a Folder entity for use by FileService (null → root). */
