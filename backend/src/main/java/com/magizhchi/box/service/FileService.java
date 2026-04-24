@@ -81,7 +81,12 @@ public class FileService {
                 .contentLength(fileSize)
                 .build();
 
-        s3Client.putObject(putRequest, RequestBody.fromInputStream(file.getInputStream(), fileSize));
+        try {
+            s3Client.putObject(putRequest, RequestBody.fromInputStream(file.getInputStream(), fileSize));
+        } catch (Exception e) {
+            log.error("S3 upload failed — bucket='{}' key='{}' error='{}'", bucketName, s3Key, e.getMessage());
+            throw e;
+        }
 
         FileMetadata metadata = new FileMetadata();
         metadata.setUser(user);

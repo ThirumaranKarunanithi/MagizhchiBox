@@ -25,6 +25,6 @@ public interface FileMetadataRepository extends JpaRepository<FileMetadata, Long
     Long sumFileSizeByUser(User user);
 
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE FileMetadata f SET f.folder = null WHERE f.folder.id IN :folderIds AND f.deleted = false")
+    @Query("UPDATE FileMetadata f SET f.folder = null WHERE f.folder.id IN :folderIds")
     void detachFilesFromFolders(@Param("folderIds") List<Long> folderIds);
 }
