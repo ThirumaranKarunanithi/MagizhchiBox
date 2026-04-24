@@ -31,13 +31,13 @@ public class FolderService {
                     .orElseThrow(() -> new ResourceNotFoundException("Parent folder not found"));
         }
 
-        // Duplicate name check at same level
-        boolean exists = (parent == null)
-                ? folderRepository.existsByUserAndNameAndParentIsNull(user, name)
-                : folderRepository.existsByUserAndNameAndParent(user, name, parent);
+        // Return existing folder if name already taken at this level (idempotent / get-or-create)
+        Optional<Folder> existing = (parent == null)
+                ? folderRepository.findByUserAndNameAndParentIsNull(user, name)
+                : folderRepository.findByUserAndNameAndParent(user, name, parent);
 
-        if (exists) {
-            throw new IllegalArgumentException("A folder named \"" + name + "\" already exists here");
+        if (existing.isPresent()) {
+            return FolderDto.from(existing.get());
         }
 
         Folder folder = new Folder();
