@@ -4,7 +4,8 @@
       "Bash(py --version)",
       "Bash(where python3 *)",
       "Bash(where py *)",
-      "Bash(file /tmp/*.tmp)"
+      "Bash(file /tmp/*.tmp)",
+      "Bash(mvn compile *)"
     ]
   }
 }
