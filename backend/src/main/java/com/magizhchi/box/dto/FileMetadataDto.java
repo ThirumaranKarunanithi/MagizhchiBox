@@ -12,6 +12,7 @@ public class FileMetadataDto {
     private String contentType;
     private Long fileSizeBytes;
     private LocalDateTime uploadedAt;
+    private Long folderId;
 
     public static FileMetadataDto from(FileMetadata file) {
         FileMetadataDto dto = new FileMetadataDto();
@@ -20,6 +21,7 @@ public class FileMetadataDto {
         dto.setContentType(file.getContentType());
         dto.setFileSizeBytes(file.getFileSizeBytes());
         dto.setUploadedAt(file.getUploadedAt());
+        dto.setFolderId(file.getFolder() != null ? file.getFolder().getId() : null);
         return dto;
     }
 }

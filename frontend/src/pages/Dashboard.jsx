@@ -60,7 +60,13 @@ export default function Dashboard() {
   }
 
   const handleUploaded = (newFile) => {
-    setFiles((prev) => [newFile, ...prev])
+    // Only add to the visible list if the file belongs to the current folder.
+    // During folder uploads, sub-folder files have a different folderId and
+    // must not appear at the current level.
+    const fileFolder = newFile.folderId ?? null
+    if (fileFolder === currentFolderId) {
+      setFiles((prev) => [newFile, ...prev])
+    }
     updateStorageInfo((user?.storageUsedBytes || 0) + (newFile.fileSizeBytes || 0))
   }
 
