@@ -4,7 +4,9 @@ import com.magizhchi.box.entity.FileMetadata;
 import com.magizhchi.box.entity.Folder;
 import com.magizhchi.box.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,4 +23,8 @@ public interface FileMetadataRepository extends JpaRepository<FileMetadata, Long
 
     @Query("SELECT COALESCE(SUM(f.fileSizeBytes), 0) FROM FileMetadata f WHERE f.user = :user AND f.deleted = false")
     Long sumFileSizeByUser(User user);
+
+    @Modifying
+    @Query("UPDATE FileMetadata f SET f.folder = null WHERE f.folder.id IN :folderIds AND f.deleted = false")
+    void detachFilesFromFolders(@Param("folderIds") List<Long> folderIds);
 }

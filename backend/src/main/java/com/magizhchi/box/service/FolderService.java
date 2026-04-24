@@ -2,7 +2,6 @@ package com.magizhchi.box.service;
 
 import com.magizhchi.box.dto.FolderDto;
 import com.magizhchi.box.entity.Folder;
-import com.magizhchi.box.entity.FileMetadata;
 import com.magizhchi.box.entity.User;
 import com.magizhchi.box.exception.ResourceNotFoundException;
 import com.magizhchi.box.repository.FileMetadataRepository;
@@ -12,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,28 +71,27 @@ public class FolderService {
     public void deleteFolder(User user, Long folderId) {
         Folder folder = folderRepository.findByIdAndUser(folderId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Folder not found"));
-        deleteFolderRecursive(user, folder);
-        log.info("Folder deleted: '{}' (id={}) for user {}", folder.getName(), folderId, user.getEmail());
+
+        // Collect every folder ID in the subtree, leaves first
+        List<Long> ids = new ArrayList<>();
+        collectIdsLeafFirst(user, folder, ids);
+
+        // Detach all files from every folder in the tree in one UPDATE
+        fileMetadataRepository.detachFilesFromFolders(ids);
+
+        // Delete folders leaf-first so FK (parent_id) is never violated
+        folderRepository.deleteAllByIds(ids);
+
+        log.info("Folder '{}' (id={}) and {} sub-folder(s) deleted for user {}",
+                folder.getName(), folderId, ids.size() - 1, user.getEmail());
     }
 
-    /**
-     * Recursively moves files to root and deletes sub-folders bottom-up,
-     * then deletes the folder itself. This avoids FK violations from children
-     * still referencing a parent that is being deleted.
-     */
-    private void deleteFolderRecursive(User user, Folder folder) {
-        // Move files in this folder to root so they are not lost
-        List<FileMetadata> files = fileMetadataRepository
-                .findByUserAndFolderAndDeletedFalseOrderByUploadedAtDesc(user, folder);
-        files.forEach(f -> f.setFolder(null));
-        fileMetadataRepository.saveAll(files);
-
-        // Recursively delete all sub-folders first (bottom-up)
+    /** Depth-first post-order traversal: children before parents. */
+    private void collectIdsLeafFirst(User user, Folder folder, List<Long> ids) {
         for (Folder sub : folderRepository.findByUserAndParent(user, folder)) {
-            deleteFolderRecursive(user, sub);
+            collectIdsLeafFirst(user, sub, ids);
         }
-
-        folderRepository.delete(folder);
+        ids.add(folder.getId());
     }
 
     /** Resolve a Folder entity for use by FileService (null → root). */

@@ -3,6 +3,9 @@ package com.magizhchi.box.repository;
 import com.magizhchi.box.entity.Folder;
 import com.magizhchi.box.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -25,4 +28,8 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 
     // All folders in folder tree (for recursive delete/move)
     List<Folder> findByUserAndParent(User user, Folder parent);
+
+    @Modifying
+    @Query("DELETE FROM Folder f WHERE f.id IN :ids")
+    void deleteAllByIds(@Param("ids") List<Long> ids);
 }
