@@ -33,9 +33,10 @@ public class FileController {
     public ResponseEntity<FileMetadataDto> uploadFile(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "folderId", required = false) Long folderId) throws IOException {
+            @RequestParam(value = "folderId", required = false) Long folderId,
+            @RequestParam(value = "relativePath", required = false) String relativePath) throws IOException {
         User user = authService.getCurrentUser(userDetails.getUsername());
-        FileMetadataDto dto = fileService.uploadFile(user, file, folderId);
+        FileMetadataDto dto = fileService.uploadFile(user, file, folderId, relativePath);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 

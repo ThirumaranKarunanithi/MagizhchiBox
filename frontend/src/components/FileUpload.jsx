@@ -22,7 +22,7 @@ export default function FileUpload({ currentFolderId, onUploaded, onFoldersCreat
       const file = files[i]
       setProgress({ current: i + 1, total: files.length, pct: 0, name: file.name })
       try {
-        const metadata = await uploadFile(file, currentFolderId, (pct) =>
+        const metadata = await uploadFile(file, currentFolderId, null, (pct) =>
           setProgress((p) => ({ ...p, pct }))
         )
         onUploaded(metadata)
@@ -90,7 +90,7 @@ export default function FileUpload({ currentFolderId, onUploaded, onFoldersCreat
 
       setProgress({ current: i + 1, total: files.length, pct: 0, name: file.name })
       try {
-        const metadata = await uploadFile(file, folderId, (pct) =>
+        const metadata = await uploadFile(file, folderId, file.webkitRelativePath || null, (pct) =>
           setProgress((p) => ({ ...p, pct }))
         )
         onUploaded(metadata)

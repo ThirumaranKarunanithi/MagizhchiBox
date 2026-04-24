@@ -25,6 +25,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -47,7 +48,7 @@ public class FileService {
     private long presignedUrlExpiryMinutes;
 
     @Transactional
-    public FileMetadataDto uploadFile(User user, MultipartFile file, Long folderId) throws IOException {
+    public FileMetadataDto uploadFile(User user, MultipartFile file, Long folderId, String relativePath) throws IOException {
         long fileSize = file.getSize();
 
         if (user.getStorageUsedBytes() + fileSize > user.getStorageQuotaBytes()) {
@@ -61,8 +62,13 @@ public class FileService {
         Folder folder = folderService.resolveFolderEntity(user, folderId);
 
         String originalFileName = file.getOriginalFilename();
-        String safeFileName = sanitizeFileName(originalFileName);
-        String s3Key = "user-" + user.getId() + "/" + UUID.randomUUID() + "_" + safeFileName;
+        String s3Key;
+        if (relativePath != null && !relativePath.isBlank()) {
+            s3Key = "user-" + user.getId() + "/" + sanitizePath(relativePath);
+        } else {
+            String safeFileName = sanitizeFileName(originalFileName);
+            s3Key = "user-" + user.getId() + "/" + UUID.randomUUID() + "_" + safeFileName;
+        }
 
         PutObjectRequest putRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
@@ -160,6 +166,13 @@ public class FileService {
     private String sanitizeFileName(String fileName) {
         if (fileName == null) return "file";
         return fileName.replaceAll("[^a-zA-Z0-9._\\-]", "_");
+    }
+
+    private String sanitizePath(String relativePath) {
+        return Arrays.stream(relativePath.split("/"))
+            .map(p -> p.replaceAll("[^a-zA-Z0-9._\\- ]", "_").trim())
+            .filter(p -> !p.isEmpty() && !p.equals(".") && !p.equals(".."))
+            .collect(Collectors.joining("/"));
     }
 
     private String formatBytes(long bytes) {
