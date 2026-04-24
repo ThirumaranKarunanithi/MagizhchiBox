@@ -7,7 +7,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 
 @Component
 @RequiredArgsConstructor
@@ -40,11 +41,17 @@ public class S3HealthCheck implements ApplicationRunner {
         }
 
         try {
-            s3Client.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
+            // HeadObject on a sentinel key: NoSuchKeyException = credentials OK, bucket reachable.
+            // Any other exception = wrong credentials / region / bucket name.
+            s3Client.headObject(HeadObjectRequest.builder()
+                    .bucket(bucketName).key("_health_check_sentinel_").build());
+            log.info("  Status : OK — bucket '{}' is accessible", bucketName);
+        } catch (NoSuchKeyException e) {
+            // 404 means bucket exists and credentials are valid — this is the expected happy path
             log.info("  Status : OK — bucket '{}' is accessible", bucketName);
         } catch (Exception e) {
             log.error("  Status : FAILED — cannot access bucket '{}': {}", bucketName, e.getMessage());
-            log.error("  Fix: check AWS credentials, region, and bucket name in Railway env vars.");
+            log.error("  Fix: check AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_S3_BUCKET_NAME in Railway env vars.");
         }
         log.info("=======================");
     }
