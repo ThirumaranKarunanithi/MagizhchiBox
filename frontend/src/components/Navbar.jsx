@@ -22,12 +22,12 @@ export default function Navbar({ activeTab, setActiveTab }) {
   }
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md border-b border-white/40 sticky top-0 z-20 shadow-[0_4px_30px_rgba(0,0,0,0.05)]">
+    <nav className="bg-white/40 backdrop-blur-xl border-b border-white/40 sticky top-0 z-20 shadow-[0_4px_30px_rgba(0,0,0,0.05)]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
-          <div className="flex items-center">
-            <img src="/logo.jpeg" alt="Magizhchi Box" className="h-10 w-auto object-contain" />
+          <div className="flex items-center bg-white rounded-xl p-1.5 shadow-sm border border-white">
+            <img src="/logo.jpeg" alt="Magizhchi Box" className="h-8 w-auto object-contain" />
           </div>
 
           {/* Desktop tabs */}
@@ -38,8 +38,8 @@ export default function Navbar({ activeTab, setActiveTab }) {
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-1.5 rounded-xl text-sm font-medium capitalize transition-all ${
                   activeTab === tab
-                    ? 'bg-white shadow-sm border border-white/80 text-[#0284C7]'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
+                    ? 'bg-white shadow-md text-[#0284C7]'
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-white/50'
                 }`}
               >
                 {tab === 'files' ? 'My Files' : 'Devices'}
@@ -64,12 +64,12 @@ export default function Navbar({ activeTab, setActiveTab }) {
 
             {/* Avatar + logout */}
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] shadow-sm flex items-center justify-center text-white text-sm font-semibold border border-white/50">
-                {user?.name?.charAt(0).toUpperCase()}
+              <div className="w-8 h-8 rounded-full bg-[#0EA5E9] shadow-sm flex items-center justify-center text-white text-sm font-bold border border-white/80">
+                {user?.name?.charAt(0).toUpperCase() || 'T'}
               </div>
               <button
                 onClick={handleLogout}
-                className="hidden sm:block text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors"
+                className="text-sm text-gray-600 hover:text-gray-800 font-medium transition-colors"
               >
                 Sign out
               </button>
@@ -87,8 +87,8 @@ export default function Navbar({ activeTab, setActiveTab }) {
                 onClick={() => setActiveTab(tab)}
                 className={`flex-1 py-2 rounded-xl text-sm font-medium capitalize transition-all min-h-[40px] ${
                   activeTab === tab
-                    ? 'bg-white shadow-sm border border-white/80 text-[#0284C7]'
-                    : 'text-gray-500 hover:bg-white/50'
+                    ? 'bg-white shadow-md text-[#0284C7]'
+                    : 'text-gray-600 hover:bg-white/50'
                 }`}
               >
                 {tab === 'files' ? 'My Files' : 'Devices'}
@@ -96,30 +96,24 @@ export default function Navbar({ activeTab, setActiveTab }) {
             ))}
           </div>
 
-          {/* Storage bar + sign out side by side */}
+          {/* Storage bar */}
           <div className="flex items-center justify-between gap-3 px-1">
             <div className="flex-1">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-600 font-medium">
                   {fmt(user?.storageUsedBytes)} / {fmt(user?.storageQuotaBytes)}
                 </span>
-                <span className={`text-xs font-medium ${usedPct > 85 ? 'text-red-500' : 'text-gray-400'}`}>
+                <span className={`text-xs font-bold ${usedPct > 85 ? 'text-red-500' : 'text-gray-500'}`}>
                   {usedPct}%
                 </span>
               </div>
-              <div className="w-full h-1.5 bg-gray-200 rounded-full">
+              <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden shadow-inner">
                 <div
                   className={`h-full rounded-full transition-all ${usedPct > 85 ? 'bg-red-500' : 'bg-gradient-to-r from-[#0EA5E9] to-[#0284C7]'}`}
                   style={{ width: `${usedPct}%` }}
                 />
               </div>
             </div>
-            <button
-              onClick={handleLogout}
-              className="text-xs text-gray-500 font-medium px-3 py-1.5 rounded-lg bg-white/60 border border-white/60 min-h-[32px] flex-shrink-0"
-            >
-              Sign out
-            </button>
           </div>
         </div>
       </div>

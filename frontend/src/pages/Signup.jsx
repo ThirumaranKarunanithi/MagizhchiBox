@@ -125,18 +125,17 @@ export default function Signup() {
 
         {/* Right Side */}
         <div className="w-full md:w-1/2 max-w-md flex flex-col items-center justify-center">
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center bg-white/50 backdrop-blur-sm border border-white/80 rounded-[1rem] p-3 shadow-sm mb-3">
-              <img src="/logo.jpeg" alt="Magizhchi Box" className="h-10 sm:h-12 w-auto object-contain mix-blend-multiply" />
+          {/* Logo */}
+          <div className="text-center mb-3 w-full">
+            <div className="flex items-center justify-center bg-white/50 backdrop-blur-sm border border-white/80 rounded-2xl shadow-sm w-full overflow-hidden h-24 sm:h-28">
+              <img src="/logo.jpeg" alt="Magizhchi Box" className="w-full h-full object-cover object-center mix-blend-multiply" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-1 drop-shadow-md">Magizhchi Box</h1>
-            <p className="text-blue-50 font-medium text-xs sm:text-sm">5 GB free storage to get started</p>
           </div>
 
           {/* ── Step 1: Registration form ── */}
           {step === 'form' && (
-            <div className="w-full" style={sharedCardStyle}>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-5 text-center">Create your account</h2>
+            <div className="w-full flex flex-col justify-center" style={{...sharedCardStyle, padding: 'clamp(16px, 3vw, 24px)'}}>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 text-center">Create your account</h2>
 
               {error && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-start gap-2">
@@ -196,7 +195,7 @@ export default function Signup() {
 
           {/* ── Step 2: OTP verification ── */}
           {step === 'otp' && (
-            <div className="w-full" style={sharedCardStyle}>
+            <div className="w-full flex flex-col justify-center" style={{...sharedCardStyle, padding: 'clamp(16px, 3vw, 24px)'}}>
               {/* Back to form */}
               <button
                 onClick={() => { setStep('form'); setError(''); setOtp('') }}

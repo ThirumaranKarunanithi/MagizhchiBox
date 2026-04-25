@@ -64,16 +64,14 @@ export default function Login() {
         {/* Left Side: Form */}
         <div className="w-full md:w-1/2 max-w-md flex flex-col items-center justify-center">
           {/* Logo */}
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center bg-white/50 backdrop-blur-sm border border-white/80 rounded-[1rem] p-3 shadow-sm mb-3">
-              <img src="/logo.jpeg" alt="Magizhchi Box" className="h-10 sm:h-12 w-auto object-contain mix-blend-multiply" />
+          <div className="text-center mb-3 w-full">
+            <div className="flex items-center justify-center bg-white/50 backdrop-blur-sm border border-white/80 rounded-2xl shadow-sm w-full overflow-hidden h-24 sm:h-28">
+              <img src="/logo.jpeg" alt="Magizhchi Box" className="w-full h-full object-cover object-center mix-blend-multiply" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-1 drop-shadow-md">Magizhchi Box</h1>
-            <p className="text-blue-50 font-medium text-xs sm:text-sm">Secure Cloud Storage, Simplified</p>
           </div>
 
           <div 
-            className="w-full"
+            className="w-full flex flex-col justify-center"
             style={{
               background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 100%)',
               backdropFilter: 'blur(16px)',
@@ -81,7 +79,7 @@ export default function Login() {
               border: '1px solid rgba(255, 255, 255, 0.6)',
               borderRadius: '24px',
               boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
-              padding: 'clamp(20px, 4vw, 32px)',
+              padding: 'clamp(16px, 3vw, 24px)',
             }}
           >
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-5 text-center">Sign in to your account</h2>

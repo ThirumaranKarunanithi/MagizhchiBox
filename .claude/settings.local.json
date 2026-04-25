@@ -5,7 +5,14 @@
       "Bash(where python3 *)",
       "Bash(where py *)",
       "Bash(file /tmp/*.tmp)",
-      "Bash(mvn compile *)"
+      "Bash(mvn compile *)",
+      "Bash(npm install *)",
+      "Bash(npx cap *)",
+      "Bash(npm run *)",
+      "Bash(gradlew.bat assembleDebug)",
+      "Bash(./gradlew assembleDebug)",
+      "Read(//mnt/c/Users/tiruk/AppData/Local/**)",
+      "Read(//mnt/c/Users/tiruk/AppData/Local/Android/**)"
     ]
   }
 }
