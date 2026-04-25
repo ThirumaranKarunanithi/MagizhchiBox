@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.magizhchi.box.desktop.controller.LoginController"
+      fx:id="root"
+      styleClass="root-bg"
+      alignment="CENTER"
+      spacing="0"
+      prefWidth="420" prefHeight="540">
+
+    <padding><Insets top="40" right="48" bottom="40" left="48"/></padding>
+
+    <!-- Logo -->
+    <HBox alignment="CENTER" styleClass="logo-box">
+        <ImageView fitWidth="56" fitHeight="56" preserveRatio="true">
+            <image><Image url="@../images/logo.png"/></image>
+        </ImageView>
+    </HBox>
+
+    <!-- App name -->
+    <Label text="Magizhchi Box" styleClass="app-title"/>
+    <Label text="Sign in to start syncing your files" styleClass="app-subtitle"/>
+
+    <Region prefHeight="28"/>
+
+    <!-- Card -->
+    <VBox styleClass="card" spacing="16">
+
+        <!-- Email -->
+        <VBox spacing="6">
+            <Label text="Email address" styleClass="field-label"/>
+            <TextField fx:id="emailField"
+                       promptText="you@example.com"
+                       styleClass="text-field"/>
+        </VBox>
+
+        <!-- Password -->
+        <VBox spacing="6">
+            <Label text="Password" styleClass="field-label"/>
+            <PasswordField fx:id="passwordField"
+                           promptText="••••••••"
+                           styleClass="text-field"/>
+        </VBox>
+
+        <!-- Error label -->
+        <Label fx:id="errorLabel" styleClass="error-label" wrapText="true" maxWidth="Infinity"/>
+
+        <!-- Spinner -->
+        <HBox alignment="CENTER">
+            <ProgressIndicator fx:id="spinner" prefWidth="28" prefHeight="28"/>
+        </HBox>
+
+        <!-- Login button -->
+        <Button fx:id="loginButton" text="Sign In"
+                styleClass="btn-primary" maxWidth="Infinity"
+                onAction="#handleLogin"/>
+
+    </VBox>
+
+    <Region VBox.vgrow="ALWAYS"/>
+
+    <!-- Footer -->
+    <Label text="© 2025 Magizhchi Software" styleClass="footer-label"/>
+
+</VBox>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.magizhchi.box.desktop.controller.HomeController"
+      styleClass="root-bg"
+      spacing="0"
+      prefWidth="500" prefHeight="640">
+
+    <!-- ── Top bar ─────────────────────────────────────────────────────────── -->
+    <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="12">
+        <padding><Insets top="12" right="20" bottom="12" left="20"/></padding>
+
+        <ImageView fitWidth="28" fitHeight="28" preserveRatio="true">
+            <image><Image url="@../images/logo.png"/></image>
+        </ImageView>
+        <Label text="Magizhchi Box" styleClass="topbar-title" HBox.hgrow="ALWAYS"/>
+
+        <!-- User info (right-aligned) -->
+        <VBox alignment="CENTER_RIGHT" spacing="1">
+            <Label fx:id="userNameLabel"  styleClass="user-name"/>
+            <Label fx:id="userEmailLabel" styleClass="user-email"/>
+        </VBox>
+
+        <Button text="Sign Out" styleClass="btn-link" onAction="#handleLogout"/>
+    </HBox>
+
+    <!-- ── Body ───────────────────────────────────────────────────────────── -->
+    <VBox spacing="16" VBox.vgrow="ALWAYS">
+        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+        <!-- Status card -->
+        <VBox styleClass="card" spacing="10">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Circle fx:id="statusDot" radius="7" fill="#22C55E"/>
+                <Label fx:id="statusLabel" text="Idle" styleClass="status-text" HBox.hgrow="ALWAYS"/>
+                <Button fx:id="pauseResumeButton" text="Pause"
+                        styleClass="btn-secondary" onAction="#handlePauseResume"
+                        disable="true"/>
+            </HBox>
+
+            <!-- Stats row -->
+            <HBox spacing="0" alignment="CENTER">
+                <!-- Synced -->
+                <VBox alignment="CENTER" HBox.hgrow="ALWAYS" spacing="2">
+                    <Label fx:id="syncedCount" text="0" styleClass="stat-number"/>
+                    <Label text="Synced" styleClass="stat-label"/>
+                </VBox>
+                <Separator orientation="VERTICAL" prefHeight="36"/>
+                <!-- Pending -->
+                <VBox alignment="CENTER" HBox.hgrow="ALWAYS" spacing="2">
+                    <Label fx:id="pendingCount" text="0" styleClass="stat-number"/>
+                    <Label text="Pending" styleClass="stat-label"/>
+                </VBox>
+                <Separator orientation="VERTICAL" prefHeight="36"/>
+                <!-- Errors -->
+                <VBox alignment="CENTER" HBox.hgrow="ALWAYS" spacing="2">
+                    <Label fx:id="errorsCount" text="0" styleClass="stat-number stat-errors"/>
+                    <Label text="Errors" styleClass="stat-label"/>
+                </VBox>
+            </HBox>
+        </VBox>
+
+        <!-- Sync folder card -->
+        <VBox styleClass="card" spacing="10">
+            <Label text="Sync Folder" styleClass="section-heading"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label fx:id="folderPathLabel" text="No folder selected"
+                       styleClass="folder-path" HBox.hgrow="ALWAYS" wrapText="true"/>
+                <Button fx:id="changeFolderButton" text="Change…"
+                        styleClass="btn-secondary" onAction="#handleChooseFolder"/>
+            </HBox>
+            <Label text="Files placed in this folder are automatically uploaded to Magizhchi Box cloud."
+                   styleClass="hint-label" wrapText="true"/>
+        </VBox>
+
+        <!-- Activity log -->
+        <VBox styleClass="card" spacing="8" VBox.vgrow="ALWAYS">
+            <Label text="Recent Activity" styleClass="section-heading"/>
+            <ListView fx:id="activityList" styleClass="activity-list" VBox.vgrow="ALWAYS"/>
+        </VBox>
+
+    </VBox>
+
+</VBox>

@@ -19,7 +19,8 @@
       "Bash(mvn clean *)",
       "Bash(npx @capacitor/assets generate --android)",
       "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Android\\\\Android Studio\\\\jbr\"; cd \"D:\\\\Magizhchi SOftware\\\\Source\\\\Magizhchi-Box\\\\frontend\\\\android\"; .\\\\gradlew.bat assembleDebug 2>&1 | Select-Object -Last 6)",
-      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Android\\\\Android Studio\\\\jbr\"; cd \"D:\\\\Magizhchi SOftware\\\\Source\\\\Magizhchi-Box\\\\frontend\\\\android\"; .\\\\gradlew.bat assembleDebug 2>&1 | Select-Object -Last 5)"
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Android\\\\Android Studio\\\\jbr\"; cd \"D:\\\\Magizhchi SOftware\\\\Source\\\\Magizhchi-Box\\\\frontend\\\\android\"; .\\\\gradlew.bat assembleDebug 2>&1 | Select-Object -Last 5)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('scripts',{}\\), indent=2\\)\\)\")"
     ]
   }
 }

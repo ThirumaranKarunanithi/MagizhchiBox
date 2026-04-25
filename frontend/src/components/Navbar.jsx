@@ -42,13 +42,13 @@ export default function Navbar({ activeTab, setActiveTab }) {
   }
 
   return (
-    <nav className="bg-white/40 backdrop-blur-xl border-b border-white/40 sticky top-0 z-20 shadow-[0_4px_30px_rgba(0,0,0,0.05)]">
+    <nav className="bg-white sm:bg-white/40 backdrop-blur-xl border-b border-white/40 sticky top-0 z-20 shadow-[0_4px_30px_rgba(0,0,0,0.05)]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-14">
+        <div className="flex items-center justify-between h-20 sm:h-16">
 
           {/* Logo */}
-          <div className="flex items-center bg-white rounded-xl p-1.5 shadow-sm border border-white">
-            <img src="/logo.jpeg" alt="Magizhchi Box" className="h-11 sm:h-8 w-auto object-contain" />
+          <div className="flex items-center bg-white rounded-xl p-1.5 sm:shadow-sm sm:border sm:border-white">
+            <img src="/logo.jpeg" alt="Magizhchi Box" className="h-14 sm:h-12 w-auto object-contain" />
           </div>
 
           {/* Desktop tabs (hidden on mobile) */}
