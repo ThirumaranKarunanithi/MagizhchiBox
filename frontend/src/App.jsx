@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
+import ForgotPassword from './pages/ForgotPassword'
 
 function PrivateRoute({ children }) {
   const { user } = useAuth()
@@ -27,6 +28,10 @@ export default function App() {
           <Route
             path="/signup"
             element={<PublicRoute><Signup /></PublicRoute>}
+          />
+          <Route
+            path="/forgot-password"
+            element={<PublicRoute><ForgotPassword /></PublicRoute>}
           />
           <Route
             path="/dashboard"

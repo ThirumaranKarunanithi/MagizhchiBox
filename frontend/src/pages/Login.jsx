@@ -1,11 +1,13 @@
 import { useState, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { login as svcLogin } from '../services/authService'
 import { useAuth } from '../context/AuthContext'
 
 export default function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { login } = useAuth()
+  const resetSuccess = location.state?.resetSuccess
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -84,6 +86,16 @@ export default function Login() {
           >
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-5 text-center">Sign in to your account</h2>
 
+          {/* Password reset success banner */}
+          {resetSuccess && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm flex items-start gap-2">
+              <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+              </svg>
+              <span>Password reset successfully! Please sign in with your new password.</span>
+            </div>
+          )}
+
           {/* Slow-connection hint */}
           {loading && slowHint && (
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm flex items-start gap-2">
@@ -131,7 +143,13 @@ export default function Login() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <Link to="/forgot-password"
+                  className="text-xs text-[#0284C7] hover:text-[#0369A1] font-medium transition-colors">
+                  Forgot password?
+                </Link>
+              </div>
               <input
                 type="password"
                 name="password"

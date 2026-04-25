@@ -74,6 +74,34 @@ public class AuthService {
                 user.getStorageUsedBytes(), user.getStorageQuotaBytes());
     }
 
+    /**
+     * Sends a password-reset OTP to the address if it belongs to a registered user.
+     * Always returns silently even when the email is not found — this prevents
+     * email-enumeration attacks.
+     */
+    public void sendPasswordResetOtp(String email) {
+        userRepository.findByEmail(email).ifPresent(user -> {
+            otpService.generateAndSendForReset(email);
+            log.info("Password reset OTP dispatched for {}", email);
+        });
+    }
+
+    /**
+     * Verifies the reset OTP then updates the user's password.
+     * Throws IllegalArgumentException on bad/expired OTP.
+     */
+    @Transactional
+    public void resetPassword(String email, String otp, String newPassword) {
+        if (!otpService.verify(email, otp)) {
+            throw new IllegalArgumentException("Invalid or expired reset code. Please request a new one.");
+        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        log.info("Password reset successfully for user: {}", email);
+    }
+
     public User getCurrentUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));

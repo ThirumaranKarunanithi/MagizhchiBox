@@ -25,6 +25,29 @@ public class EmailService {
 
     private static final String RESEND_URL = "https://api.resend.com/emails";
 
+    public void sendPasswordResetOtp(String toEmail, String otp) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(resendApiKey);
+
+        Map<String, Object> body = Map.of(
+            "from",    "Magizhchi Box <" + fromEmail + ">",
+            "to",      List.of(toEmail),
+            "subject", "Magizhchi Box – Password Reset Code",
+            "text",
+                "Hello,\n\n" +
+                "We received a request to reset the password for your Magizhchi Box account.\n\n" +
+                "Your password reset code is:\n\n" +
+                "        " + otp + "\n\n" +
+                "This code expires in 10 minutes.\n" +
+                "If you did not request a password reset, you can safely ignore this email.\n\n" +
+                "– Magizhchi Box"
+        );
+
+        restTemplate.postForObject(RESEND_URL, new HttpEntity<>(body, headers), String.class);
+        log.info("Password reset OTP email sent via Resend to {}", toEmail);
+    }
+
     public void sendOtp(String toEmail, String otp) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

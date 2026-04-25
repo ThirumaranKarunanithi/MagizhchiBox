@@ -40,6 +40,21 @@ public class OtpService {
         log.info("OTP generated and sent to {}", email);
     }
 
+    /** Same as generateAndSend but uses the password-reset email template. */
+    public void generateAndSendForReset(String email) {
+        otpRepository.deleteByEmail(email);
+
+        String otp = String.format("%06d", RANDOM.nextInt(1_000_000));
+        OtpRecord record = new OtpRecord();
+        record.setEmail(email);
+        record.setOtp(otp);
+        record.setExpiresAt(LocalDateTime.now().plusMinutes(10));
+        otpRepository.save(record);
+
+        emailService.sendPasswordResetOtp(email, otp);
+        log.info("Password reset OTP generated and sent to {}", email);
+    }
+
     /**
      * Returns true and marks OTP used if valid; false if invalid or expired.
      */

@@ -68,14 +68,15 @@ public class DeviceService {
             if (activeCount >= MAX_ACTIVE_DEVICES) {
                 evictLeastRecentlyUsed(user);
             }
-            Device device = new Device();
-            device.setUser(user);
-            device.setDeviceId(deviceId);
-            device.setDeviceName(deviceName != null ? deviceName : "Unknown Device");
-            device.setDeviceType(deviceType != null ? deviceType : "Unknown");
-            device.setIpAddress(extractIpAddress(request));
-            device.setActive(true);
-            deviceRepository.save(device);
+            // Use an atomic upsert so that two concurrent login requests hitting this
+            // branch simultaneously never produce a duplicate-key constraint error.
+            deviceRepository.upsertDevice(
+                deviceId,
+                deviceName != null ? deviceName : "Unknown Device",
+                deviceType != null ? deviceType : "Unknown",
+                extractIpAddress(request),
+                user.getId()
+            );
         }
     }
 
