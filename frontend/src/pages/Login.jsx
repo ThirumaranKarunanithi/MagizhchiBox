@@ -30,16 +30,40 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <img src="/logo.jpeg" alt="Magizhchi Box" className="h-24 w-auto object-contain mx-auto mb-2" />
-          <p className="text-blue-200 mt-1 text-sm">Your secure cloud storage</p>
-        </div>
+    <div 
+      className="min-h-screen flex items-center justify-center relative overflow-hidden"
+      style={{
+        backgroundColor: '#0EA5E9',
+        backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.2) 2px, transparent 2px), linear-gradient(135deg, #38BDF8 0%, #0284C7 100%)',
+        backgroundSize: '24px 24px, 100% 100%',
+      }}
+    >
+      <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row relative z-10 items-center md:items-stretch justify-center p-4 md:p-6 gap-6 lg:gap-12">
+        
+        {/* Left Side: Form */}
+        <div className="w-full md:w-1/2 max-w-md flex flex-col items-center justify-center">
+          {/* Logo */}
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center bg-white/50 backdrop-blur-sm border border-white/80 rounded-[1rem] p-3 shadow-sm mb-3">
+              <img src="/logo.jpeg" alt="Magizhchi Box" className="h-10 sm:h-12 w-auto object-contain mix-blend-multiply" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-1 drop-shadow-md">Magizhchi Box</h1>
+            <p className="text-blue-50 font-medium text-xs sm:text-sm">Secure Cloud Storage, Simplified</p>
+          </div>
 
-        <div className="card">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">Sign in to your account</h2>
+          <div 
+            className="w-full"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 100%)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid rgba(255, 255, 255, 0.6)',
+              borderRadius: '24px',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+              padding: 'clamp(20px, 4vw, 32px)',
+            }}
+          >
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-5 text-center">Sign in to your account</h2>
 
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-start gap-2">
@@ -50,7 +74,7 @@ export default function Login() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
               <input
@@ -77,7 +101,11 @@ export default function Login() {
                 autoComplete="current-password"
               />
             </div>
-            <button type="submit" disabled={loading} className="btn-primary w-full mt-2">
+            <button 
+              type="submit" 
+              disabled={loading} 
+              className="w-full mt-4 bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold py-3 px-4 rounded-xl shadow-[0_4px_20px_rgba(15,23,42,0.2)] transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
@@ -97,6 +125,29 @@ export default function Login() {
             </Link>
           </p>
         </div>
+        </div>
+        
+        {/* Right Side: Professional Image */}
+        <div className="hidden md:block w-full md:w-1/2 relative">
+          <div 
+            className="absolute inset-0 rounded-[24px] overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-[1.02]"
+            style={{ border: '2px solid rgba(255, 255, 255, 0.4)' }}
+          >
+            <img 
+              src="/login_professionals.png" 
+              alt="Professionals Collaborating" 
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0284C7]/90 via-[#0284C7]/20 to-transparent pointer-events-none" />
+            <div className="absolute bottom-8 left-8 right-8 text-white">
+              <h3 className="text-2xl sm:text-3xl font-extrabold mb-2 drop-shadow-lg">Secure Collaboration</h3>
+              <p className="text-base sm:text-lg font-medium text-blue-50 drop-shadow-md leading-relaxed">
+                Empowering your team with seamless and secure access to critical data from anywhere.
+              </p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   )

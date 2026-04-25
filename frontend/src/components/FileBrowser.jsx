@@ -256,8 +256,8 @@ export default function FileBrowser({
             {selectedFiles.size > 0 && <button
               onClick={handleBulkDownload}
               disabled={bulkDownloading || bulkDeleting}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium
-                         bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium
+                         bg-white/60 text-[#0284C7] hover:bg-white/80 border border-white/50 shadow-sm transition-all disabled:opacity-50 hover:-translate-y-0.5"
             >
               {bulkDownloading
                 ? <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
@@ -268,8 +268,8 @@ export default function FileBrowser({
             <button
               onClick={handleBulkDelete}
               disabled={bulkDeleting || bulkDownloading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium
-                         bg-red-50 text-red-600 hover:bg-red-100 transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium
+                         bg-white/60 text-red-600 hover:bg-white/80 border border-white/50 shadow-sm transition-all disabled:opacity-50 hover:-translate-y-0.5"
             >
               {bulkDeleting
                 ? <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
@@ -279,7 +279,7 @@ export default function FileBrowser({
             </button>
             <button
               onClick={() => { setSelectedFiles(new Set()); setSelectedFolders(new Set()) }}
-              className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-1.5 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-white/60 transition-all"
               title="Clear selection"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -328,8 +328,8 @@ export default function FileBrowser({
               key={`folder-${folder.id}`}
               onClick={() => onNavigate(folder)}
               className={`group flex items-center gap-3 py-3 px-1 -mx-1 rounded-lg cursor-pointer
-                         transition-colors select-none
-                         ${isFolderSelected ? 'bg-blue-50' : 'hover:bg-amber-50'}`}
+                         transition-all select-none
+                         ${isFolderSelected ? 'bg-white/60 shadow-sm border border-white/60' : 'hover:bg-white/40 border border-transparent'}`}
             >
               {/* Folder checkbox */}
               <div
@@ -345,7 +345,7 @@ export default function FileBrowser({
               </div>
 
               {/* Folder icon */}
-              <div className="flex-shrink-0 w-9 h-9 bg-amber-50 rounded-lg flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+              <div className="flex-shrink-0 w-9 h-9 bg-white/50 rounded-xl flex items-center justify-center group-hover:bg-white/80 transition-all shadow-sm">
                 <svg className="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
                 </svg>
@@ -362,7 +362,7 @@ export default function FileBrowser({
                 <button
                   onClick={(e) => handleDeleteFolder(e, folder)}
                   disabled={deletingFolderId === folder.id}
-                  className="p-1.5 text-red-400 hover:bg-red-50 rounded-lg transition-colors"
+                  className="p-1.5 text-red-400 hover:bg-white/80 rounded-xl transition-all"
                   title="Delete folder"
                 >
                   {deletingFolderId === folder.id
@@ -387,8 +387,8 @@ export default function FileBrowser({
                 key={`file-${file.id}`}
                 onClick={() => toggleOneFile(file.id)}
                 className={`flex items-center gap-3 py-3 group cursor-pointer rounded-lg px-1 -mx-1
-                            transition-colors select-none
-                            ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+                            transition-all select-none
+                            ${isSelected ? 'bg-white/60 shadow-sm border border-white/60' : 'hover:bg-white/40 border border-transparent'}`}
               >
                 {/* Checkbox */}
                 <div
@@ -402,7 +402,7 @@ export default function FileBrowser({
                   )}
                 </div>
 
-                <div className="flex-shrink-0 w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center">
+                <div className="flex-shrink-0 w-9 h-9 bg-white/50 rounded-xl flex items-center justify-center shadow-sm transition-all group-hover:bg-white/80">
                   {getIcon(file.contentType)}
                 </div>
 
@@ -421,7 +421,7 @@ export default function FileBrowser({
                   <button
                     onClick={() => handleDownload(file)}
                     disabled={loadingId === file.id || bulkDeleting}
-                    className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors disabled:opacity-50"
+                    className="p-1.5 text-[#0284C7] hover:bg-white/80 rounded-xl transition-all disabled:opacity-50"
                     title="Download"
                   >
                     {loadingId === file.id
@@ -432,7 +432,7 @@ export default function FileBrowser({
                   <button
                     onClick={() => handleDeleteFile(file)}
                     disabled={deletingFileId === file.id || bulkDeleting}
-                    className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                    className="p-1.5 text-red-500 hover:bg-white/80 rounded-xl transition-all disabled:opacity-50"
                     title="Delete"
                   >
                     {deletingFileId === file.id

@@ -25,10 +25,15 @@ function getDeviceMeta() {
   return { deviceId: getOrCreateDeviceId(), deviceName, deviceType }
 }
 
-export async function signup(name, email, password) {
+export async function sendOtp(email) {
+  const { data } = await api.post('/auth/send-otp', { email })
+  return data
+}
+
+export async function signup(name, email, password, otp) {
   const { deviceId, deviceName, deviceType } = getDeviceMeta()
   const { data } = await api.post('/auth/signup', {
-    name, email, password, deviceId, deviceName, deviceType,
+    name, email, password, otp, deviceId, deviceName, deviceType,
   })
   persist(data)
   return data

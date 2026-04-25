@@ -99,13 +99,13 @@ export default function DeviceManager() {
             {activeDevices.map((device) => {
               const isCurrent = device.deviceId === currentDeviceId
               return (
-                <div key={device.deviceId} className={`flex items-start gap-3 p-3 rounded-xl border
-                  ${isCurrent ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'}`}
+                <div key={device.deviceId} className={`flex items-start gap-3 p-3 rounded-xl border transition-all shadow-sm
+                  ${isCurrent ? 'bg-white/80 border-white' : 'bg-white/40 border-white/50'}`}
                 >
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0
-                    ${isCurrent ? 'bg-blue-100' : 'bg-gray-200'}`}
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm
+                    ${isCurrent ? 'bg-gradient-to-r from-[#0EA5E9] to-[#0284C7]' : 'bg-white/60 border border-white/40'}`}
                   >
-                    <svg className={`w-5 h-5 ${isCurrent ? 'text-blue-600' : 'text-gray-500'}`}
+                    <svg className={`w-5 h-5 ${isCurrent ? 'text-white' : 'text-gray-500'}`}
                       fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                         d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
@@ -147,7 +147,7 @@ export default function DeviceManager() {
           <div className="space-y-2">
             {inactiveDevices.map((device) => (
               <div key={device.deviceId} className="flex items-center gap-3 py-2 opacity-50">
-                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-white/40 border border-white/30 shadow-sm flex items-center justify-center flex-shrink-0">
                   <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                       d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>

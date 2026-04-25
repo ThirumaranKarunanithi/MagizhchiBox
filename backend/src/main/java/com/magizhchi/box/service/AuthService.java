@@ -6,6 +6,7 @@ import com.magizhchi.box.dto.SignupRequest;
 import com.magizhchi.box.entity.User;
 import com.magizhchi.box.exception.ResourceNotFoundException;
 import com.magizhchi.box.repository.UserRepository;
+import com.magizhchi.box.service.OtpService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +26,15 @@ public class AuthService {
     private final JwtService jwtService;
     private final DeviceService deviceService;
     private final AuthenticationManager authenticationManager;
+    private final OtpService otpService;
 
     @Transactional
     public AuthResponse signup(SignupRequest request, HttpServletRequest httpRequest) {
+        // Verify OTP before doing anything else
+        if (!otpService.verify(request.getEmail(), request.getOtp())) {
+            throw new IllegalArgumentException("Invalid or expired OTP. Please request a new one.");
+        }
+
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("Email address is already registered");
         }

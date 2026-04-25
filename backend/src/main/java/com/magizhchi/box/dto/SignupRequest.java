@@ -20,6 +20,9 @@ public class SignupRequest {
     @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
 
+    @NotBlank(message = "OTP is required")
+    private String otp;
+
     @NotBlank(message = "Device ID is required")
     private String deviceId;
 

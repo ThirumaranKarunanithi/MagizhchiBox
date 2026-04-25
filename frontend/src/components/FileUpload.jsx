@@ -123,8 +123,8 @@ export default function FileUpload({ currentFolderId, onUploaded, onFoldersCreat
       <button
         onClick={() => fileInputRef.current?.click()}
         disabled={uploading}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium
-                   bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50"
+        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold
+                   bg-[#0F172A] hover:bg-[#1E293B] text-white shadow-sm transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -137,9 +137,9 @@ export default function FileUpload({ currentFolderId, onUploaded, onFoldersCreat
       <button
         onClick={() => folderInputRef.current?.click()}
         disabled={uploading}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium
-                   bg-white hover:bg-amber-50 text-gray-700 border border-gray-200
-                   hover:border-amber-300 transition-colors disabled:opacity-50"
+        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium
+                   bg-white/80 hover:bg-white backdrop-blur-sm text-gray-700 border border-white/60
+                   shadow-sm transition-all disabled:opacity-50 hover:-translate-y-0.5 disabled:hover:translate-y-0"
       >
         <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
           <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
@@ -155,7 +155,7 @@ export default function FileUpload({ currentFolderId, onUploaded, onFoldersCreat
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
           </svg>
           <div className="flex flex-col min-w-0">
-            <span className="text-xs text-gray-600 truncate max-w-[200px]">{pctLabel}</span>
+            <span className="text-xs text-white drop-shadow-sm font-medium truncate max-w-[200px]">{pctLabel}</span>
             <div className="w-32 h-1 bg-gray-200 rounded-full mt-0.5">
               <div
                 className="bg-blue-500 h-1 rounded-full transition-all duration-300"
@@ -168,7 +168,7 @@ export default function FileUpload({ currentFolderId, onUploaded, onFoldersCreat
 
       {/* Inline error */}
       {error && !uploading && (
-        <span className="text-xs text-red-600 ml-2 flex items-center gap-1">
+        <span className="text-xs text-red-200 drop-shadow-md font-medium ml-2 flex items-center gap-1">
           <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
           </svg>
