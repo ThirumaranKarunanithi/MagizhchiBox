@@ -1,0 +1,12 @@
+{
+  "appId": "software.magizhchi.box",
+  "appName": "Magizhchi Box",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#0EA5E9"
+  }
+}

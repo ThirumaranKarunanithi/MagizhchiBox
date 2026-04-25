@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { login as svcLogin } from '../services/authService'
 import { useAuth } from '../context/AuthContext'
@@ -9,24 +9,45 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [slowHint, setSlowHint] = useState(false)
+  const [timedOut, setTimedOut] = useState(false)
+  const slowTimer = useRef(null)
 
   const handleChange = (e) =>
     setForm((p) => ({ ...p, [e.target.name]: e.target.value }))
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const doLogin = async () => {
     setError('')
+    setTimedOut(false)
+    setSlowHint(false)
     setLoading(true)
+
+    // Show "waking up server" hint after 8 s
+    slowTimer.current = setTimeout(() => setSlowHint(true), 8000)
+
     try {
       const userData = await svcLogin(form.email, form.password)
       login(userData)
       navigate('/dashboard')
     } catch (err) {
-      const msg = err.response?.data?.message || 'Login failed. Please try again.'
-      setError(msg)
+      const isTimeout = err.code === 'ECONNABORTED' || err.message?.includes('timeout')
+      if (isTimeout) {
+        setTimedOut(true)
+        setError('Server is taking too long to respond. Tap "Retry" to try again.')
+      } else {
+        const msg = err.response?.data?.message || err.message || 'Login failed. Please try again.'
+        setError(msg)
+      }
     } finally {
+      clearTimeout(slowTimer.current)
       setLoading(false)
+      setSlowHint(false)
     }
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    doLogin()
   }
 
   return (
@@ -65,12 +86,35 @@ export default function Login() {
           >
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-5 text-center">Sign in to your account</h2>
 
+          {/* Slow-connection hint */}
+          {loading && slowHint && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm flex items-start gap-2">
+              <svg className="w-4 h-4 mt-0.5 flex-shrink-0 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+              </svg>
+              <span>Server is waking up, please wait a moment…</span>
+            </div>
+          )}
+
+          {/* Error message */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-start gap-2">
               <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
               </svg>
-              <span>{error}</span>
+              <div className="flex flex-col gap-2 flex-1">
+                <span>{error}</span>
+                {timedOut && (
+                  <button
+                    type="button"
+                    onClick={doLogin}
+                    className="self-start bg-red-100 hover:bg-red-200 text-red-800 font-semibold text-xs px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    Retry
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
@@ -112,7 +156,7 @@ export default function Login() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
                   </svg>
-                  Signing in…
+                  {slowHint ? 'Connecting…' : 'Signing in…'}
                 </span>
               ) : 'Sign in'}
             </button>

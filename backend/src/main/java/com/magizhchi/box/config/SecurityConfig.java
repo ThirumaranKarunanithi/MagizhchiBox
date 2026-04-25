@@ -23,6 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -58,7 +59,22 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+
+        // Start with whatever is configured via env var / properties
+        List<String> origins = new ArrayList<>(Arrays.asList(allowedOrigins.split(",")));
+
+        // Always add Capacitor / Android WebView origins so the mobile app
+        // works even when CORS_ALLOWED_ORIGINS is overridden in Railway
+        for (String mobileOrigin : List.of(
+                "capacitor://localhost",
+                "https://localhost",
+                "http://localhost")) {
+            if (!origins.contains(mobileOrigin)) {
+                origins.add(mobileOrigin);
+            }
+        }
+
+        config.setAllowedOrigins(origins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Device-ID"));
         config.setAllowCredentials(true);

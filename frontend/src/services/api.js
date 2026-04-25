@@ -3,6 +3,7 @@ import axios from 'axios'
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   headers: { 'Content-Type': 'application/json' },
+  timeout: 60000, // 60 s — covers Railway cold-start (~30-50 s on first wake)
 })
 
 // Attach JWT + Device ID to every request
@@ -14,7 +15,7 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Global 401 → redirect to login
+// Global response interceptor
 api.interceptors.response.use(
   (res) => res,
   (err) => {
@@ -22,6 +23,13 @@ api.interceptors.response.use(
       localStorage.removeItem('mb_token')
       localStorage.removeItem('mb_user')
       window.location.href = '/login'
+    }
+    // Normalise network / timeout errors so callers always get a readable message
+    if (!err.response) {
+      const isTimeout = err.code === 'ECONNABORTED' || err.message?.includes('timeout')
+      err.message = isTimeout
+        ? 'Request timed out. Please check your connection and try again.'
+        : 'Unable to reach the server. Please check your internet connection.'
     }
     return Promise.reject(err)
   }
