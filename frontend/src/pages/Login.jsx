@@ -143,13 +143,7 @@ export default function Login() {
               />
             </div>
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-sm font-medium text-gray-700">Password</label>
-                <Link to="/forgot-password"
-                  className="text-xs text-[#0284C7] hover:text-[#0369A1] font-medium transition-colors">
-                  Forgot password?
-                </Link>
-              </div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
               <input
                 type="password"
                 name="password"
@@ -161,10 +155,21 @@ export default function Login() {
                 autoComplete="current-password"
               />
             </div>
-            <button 
-              type="submit" 
-              disabled={loading} 
-              className="w-full mt-4 bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold py-3 px-4 rounded-xl shadow-[0_4px_20px_rgba(15,23,42,0.2)] transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+
+            {/* Forgot password — right-aligned below password field */}
+            <div className="flex justify-end">
+              <Link
+                to="/forgot-password"
+                className="text-sm text-[#0284C7] hover:text-[#0369A1] font-medium transition-colors"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-1 bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold py-3 px-4 rounded-xl shadow-[0_4px_20px_rgba(15,23,42,0.2)] transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
