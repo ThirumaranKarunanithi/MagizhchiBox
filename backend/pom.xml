@@ -78,10 +78,11 @@
             <version>${aws.sdk.version}</version>
         </dependency>
 
-        <!-- Email (OTP) -->
+        <!-- AWS SES (OTP email) -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>ses</artifactId>
+            <version>${aws.sdk.version}</version>
         </dependency>
 
         <!-- Lombok -->
