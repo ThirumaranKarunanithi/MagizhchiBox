@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -135,16 +137,13 @@ public class FileService {
         return s3Presigner.presignGetObject(presignRequest).url().toString();
     }
 
-    public void deleteFile(User user, Long fileId) {
-        // Commit the DB changes first in their own transaction.
-        // S3 cleanup happens after the commit so a failed S3 call never
-        // rolls back the soft-delete and leaves the file visible to the user.
-        String s3Key = softDeleteInDb(user, fileId);
-        deleteFromS3BestEffort(s3Key);
-    }
-
+    /**
+     * Soft-deletes the file in DB then removes it from S3.
+     * Called from the controller (external/proxy invocation) so @Transactional applies.
+     * S3 cleanup is scheduled via afterCommit() so it never causes a DB rollback.
+     */
     @Transactional
-    protected String softDeleteInDb(User user, Long fileId) {
+    public void deleteFile(User user, Long fileId) {
         FileMetadata metadata = fileMetadataRepository.findByIdAndUserAndDeletedFalse(fileId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("File not found"));
 
@@ -155,18 +154,29 @@ public class FileService {
         user.setStorageUsedBytes(Math.max(0, user.getStorageUsedBytes() - metadata.getFileSizeBytes()));
         userRepository.save(user);
 
-        log.info("File soft-deleted: '{}' for user {}", metadata.getOriginalFileName(), user.getEmail());
-        return metadata.getS3Key();
+        String s3Key = metadata.getS3Key();
+        log.info("File soft-deleted in DB: '{}' s3Key='{}' for user {}",
+                metadata.getOriginalFileName(), s3Key, user.getEmail());
+
+        // S3 delete runs after the transaction commits
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                deleteFromS3BestEffort(s3Key);
+            }
+        });
     }
 
     private void deleteFromS3BestEffort(String s3Key) {
         try {
+            log.info("Attempting S3 delete — bucket='{}' key='{}'", bucketName, s3Key);
             s3Client.deleteObject(DeleteObjectRequest.builder()
                     .bucket(bucketName)
                     .key(s3Key)
                     .build());
+            log.info("S3 delete succeeded — key='{}'", s3Key);
         } catch (Exception e) {
-            log.error("S3 delete failed for key '{}': {}", s3Key, e.getMessage());
+            log.error("S3 delete failed — bucket='{}' key='{}' error='{}'", bucketName, s3Key, e.getMessage());
         }
     }
 
