@@ -1,7 +1,20 @@
 import api from './api'
 import { v4 as uuidv4 } from 'uuid'
+import { Capacitor } from '@capacitor/core'
+import { Device } from '@capacitor/device'
 
-function getOrCreateDeviceId() {
+// On native (Android/iOS) use the hardware device identifier — it survives
+// APK reinstalls so the same physical device always maps to the same slot.
+// On web, fall back to a UUID stored in localStorage.
+async function getOrCreateDeviceId() {
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const info = await Device.getId()
+      return info.identifier
+    } catch {
+      // If the plugin call fails for any reason, fall through to localStorage
+    }
+  }
   let deviceId = localStorage.getItem('mb_device_id')
   if (!deviceId) {
     deviceId = uuidv4()
@@ -10,7 +23,7 @@ function getOrCreateDeviceId() {
   return deviceId
 }
 
-function getDeviceMeta() {
+async function getDeviceMeta() {
   const ua = navigator.userAgent
   let deviceType = 'Desktop'
   if (/Android|iPhone|iPad|iPod/i.test(ua)) deviceType = 'Mobile'
@@ -22,7 +35,8 @@ function getDeviceMeta() {
     /Safari/i.test(ua) ? 'Safari' : 'Browser'
   }`
 
-  return { deviceId: getOrCreateDeviceId(), deviceName, deviceType }
+  const deviceId = await getOrCreateDeviceId()
+  return { deviceId, deviceName, deviceType }
 }
 
 export async function sendOtp(email) {
@@ -31,7 +45,7 @@ export async function sendOtp(email) {
 }
 
 export async function signup(name, email, password, otp) {
-  const { deviceId, deviceName, deviceType } = getDeviceMeta()
+  const { deviceId, deviceName, deviceType } = await getDeviceMeta()
   const { data } = await api.post('/auth/signup', {
     name, email, password, otp, deviceId, deviceName, deviceType,
   })
@@ -40,7 +54,7 @@ export async function signup(name, email, password, otp) {
 }
 
 export async function login(email, password) {
-  const { deviceId, deviceName, deviceType } = getDeviceMeta()
+  const { deviceId, deviceName, deviceType } = await getDeviceMeta()
   const { data } = await api.post('/auth/login', {
     email, password, deviceId, deviceName, deviceType,
   })

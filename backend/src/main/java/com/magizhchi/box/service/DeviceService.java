@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DeviceService {
 
-    private static final int MAX_ACTIVE_DEVICES = 2;
+    private static final int MAX_ACTIVE_DEVICES = 5;
     private final DeviceRepository deviceRepository;
 
     /**
