@@ -29,7 +29,7 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
      * Atomic INSERT … ON CONFLICT DO UPDATE so concurrent login requests never
      * produce a duplicate-key error on the (user_id, device_id) unique constraint.
      */
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = """
         INSERT INTO devices
             (device_id, device_name, device_type, ip_address,
