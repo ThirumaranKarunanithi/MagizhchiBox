@@ -8,6 +8,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -54,6 +56,19 @@ public class GlobalExceptionHandler {
         body.put("error", "Validation Failed");
         body.put("fieldErrors", fieldErrors);
         return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleMaxSize(MaxUploadSizeExceededException ex) {
+        return error(HttpStatus.PAYLOAD_TOO_LARGE,
+                "File is too large. Maximum allowed size is 500 MB.");
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<Map<String, Object>> handleMultipart(MultipartException ex) {
+        log.warn("Multipart parse error: {}", ex.getMessage());
+        return error(HttpStatus.BAD_REQUEST,
+                "Could not read uploaded file. Please try again.");
     }
 
     @ExceptionHandler(software.amazon.awssdk.services.s3.model.S3Exception.class)
