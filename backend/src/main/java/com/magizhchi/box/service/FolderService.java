@@ -117,7 +117,10 @@ public class FolderService {
         // Delete folder records leaf-first so FK (parent_id) is never violated
         folderRepository.bulkDeleteByIds(ids);
 
-        // Delete all collected S3 objects inline (best-effort; log failures but don't abort)
+        log.info("Folder '{}' (id={}) and {} sub-folder(s) deleted, {} file(s) removed for user {}",
+                folder.getName(), folderId, ids.size() - 1, activeFiles.size(), user.getEmail());
+
+        // Best-effort S3 cleanup — failures are logged but never block the folder delete
         for (String s3Key : s3Keys) {
             try {
                 log.info("S3 delete — bucket='{}' key='{}'", bucketName, s3Key);
@@ -127,12 +130,9 @@ public class FolderService {
                         .build());
                 log.info("S3 delete succeeded — key='{}'", s3Key);
             } catch (Exception e) {
-                log.error("S3 delete failed — key='{}' error='{}'", s3Key, e.getMessage());
+                log.error("S3 delete failed (orphaned object) — key='{}' error='{}'", s3Key, e.getMessage());
             }
         }
-
-        log.info("Folder '{}' (id={}) and {} sub-folder(s) deleted, {} file(s) removed for user {}",
-                folder.getName(), folderId, ids.size() - 1, activeFiles.size(), user.getEmail());
     }
 
     /** Depth-first post-order traversal: children before parents. */

@@ -136,9 +136,9 @@ public class FileService {
     }
 
     /**
-     * Deletes a file from both S3 and the database.
-     * S3 is deleted first; if it fails the exception propagates and DB is unchanged.
-     * Frontend only receives 204 after both succeed.
+     * Soft-deletes the file in DB (always), then removes from S3 (best-effort).
+     * DB delete is guaranteed — frontend always sees the file gone.
+     * S3 failures are logged but never block the operation.
      */
     @Transactional
     public void deleteFile(User user, Long fileId) {
@@ -148,15 +148,7 @@ public class FileService {
         String s3Key = metadata.getS3Key();
         String fileName = metadata.getOriginalFileName();
 
-        // 1. Delete from S3 — if this throws, DB transaction rolls back (file stays visible)
-        log.info("S3 delete — bucket='{}' key='{}'", bucketName, s3Key);
-        s3Client.deleteObject(DeleteObjectRequest.builder()
-                .bucket(bucketName)
-                .key(s3Key)
-                .build());
-        log.info("S3 delete succeeded — key='{}'", s3Key);
-
-        // 2. Soft-delete in DB
+        // 1. Always soft-delete in DB first — file disappears from UI regardless of S3
         metadata.setDeleted(true);
         metadata.setDeletedAt(LocalDateTime.now());
         fileMetadataRepository.save(metadata);
@@ -164,7 +156,23 @@ public class FileService {
         user.setStorageUsedBytes(Math.max(0, user.getStorageUsedBytes() - metadata.getFileSizeBytes()));
         userRepository.save(user);
 
-        log.info("File deleted: '{}' for user {}", fileName, user.getEmail());
+        log.info("File soft-deleted in DB: '{}' s3Key='{}' for user {}", fileName, s3Key, user.getEmail());
+
+        // 2. Best-effort S3 delete — logged but never throws
+        if (s3Key != null && !s3Key.isBlank()) {
+            try {
+                log.info("S3 delete — bucket='{}' key='{}'", bucketName, s3Key);
+                s3Client.deleteObject(DeleteObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(s3Key)
+                        .build());
+                log.info("S3 delete succeeded — key='{}'", s3Key);
+            } catch (Exception e) {
+                log.error("S3 delete failed (orphaned object) — key='{}' error='{}'", s3Key, e.getMessage());
+            }
+        } else {
+            log.warn("File '{}' has no S3 key, skipping S3 delete", fileName);
+        }
     }
 
     private String sanitizeFileName(String fileName) {
