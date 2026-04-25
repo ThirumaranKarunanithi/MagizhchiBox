@@ -22,14 +22,23 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DeviceService {
 
-    private static final int MAX_ACTIVE_DEVICES = 5;
+    private static final int MAX_ACTIVE_DEVICES = 2;
     private final DeviceRepository deviceRepository;
 
     /**
      * Registers a device on login/signup.
-     * - If device already exists and is active → update lastLoginAt
-     * - If device was deactivated → reactivate if quota allows
-     * - If device is new → check limit, then create
+     *
+     * Rules (in order):
+     * 1. Same device ID already active  → just update lastLoginAt / name / IP (no slot consumed).
+     * 2. Same device ID but deactivated → reactivate. If slots are full, evict the LRU device first.
+     * 3. Brand-new device ID            → if slots are full, evict the LRU device, then create.
+     *
+     * "Evict LRU" means we silently deactivate the device that signed in least recently.
+     * This lets a user reinstall the app on the same physical phone (which now uses a stable
+     * hardware UUID via @capacitor/device) without ever hitting the limit — because after the
+     * first reinstall the hardware UUID matches the existing record (rule 1).
+     * Stale slots from older installs that used random localStorage UUIDs are automatically
+     * rotated out on the next login.
      */
     @Transactional
     public void registerDevice(User user, String deviceId, String deviceName,
@@ -37,13 +46,12 @@ public class DeviceService {
         Optional<Device> existingOpt = deviceRepository.findByUserAndDeviceId(user, deviceId);
 
         if (existingOpt.isPresent()) {
+            // ── Case 1 / 2: known device (active or previously deactivated) ──────────
             Device device = existingOpt.get();
             if (!device.isActive()) {
                 long activeCount = deviceRepository.countByUserAndActiveTrue(user);
                 if (activeCount >= MAX_ACTIVE_DEVICES) {
-                    throw new DeviceLimitExceededException(
-                        "Maximum device limit (" + MAX_ACTIVE_DEVICES + ") reached. " +
-                        "Please remove a device before logging in from this one.");
+                    evictLeastRecentlyUsed(user);
                 }
                 device.setActive(true);
                 device.setFirstLoginAt(LocalDateTime.now());
@@ -53,12 +61,12 @@ public class DeviceService {
             device.setDeviceType(deviceType);
             device.setIpAddress(extractIpAddress(request));
             deviceRepository.save(device);
+
         } else {
+            // ── Case 3: brand-new device ID ──────────────────────────────────────────
             long activeCount = deviceRepository.countByUserAndActiveTrue(user);
             if (activeCount >= MAX_ACTIVE_DEVICES) {
-                throw new DeviceLimitExceededException(
-                    "Maximum device limit (" + MAX_ACTIVE_DEVICES + ") reached. " +
-                    "Please remove an existing device to log in from a new one.");
+                evictLeastRecentlyUsed(user);
             }
             Device device = new Device();
             device.setUser(user);
@@ -68,6 +76,22 @@ public class DeviceService {
             device.setIpAddress(extractIpAddress(request));
             device.setActive(true);
             deviceRepository.save(device);
+        }
+    }
+
+    /**
+     * Deactivates the active device that signed in least recently (LRU eviction).
+     * Called only when a valid login would otherwise exceed MAX_ACTIVE_DEVICES.
+     */
+    private void evictLeastRecentlyUsed(User user) {
+        List<Device> active = deviceRepository
+                .findByUserAndActiveTrueOrderByLastLoginAtAsc(user);
+        if (!active.isEmpty()) {
+            Device lru = active.get(0);
+            log.info("Evicting LRU device '{}' (id={}) for user {} to make room for new login",
+                     lru.getDeviceName(), lru.getDeviceId(), user.getEmail());
+            lru.setActive(false);
+            deviceRepository.save(lru);
         }
     }
 

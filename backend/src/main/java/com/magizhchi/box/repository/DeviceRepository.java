@@ -18,4 +18,7 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
     long countByUserAndActiveTrue(User user);
 
     List<Device> findByUser(User user);
+
+    // Returns active devices ordered oldest-login-first so we can evict the LRU slot
+    List<Device> findByUserAndActiveTrueOrderByLastLoginAtAsc(User user);
 }

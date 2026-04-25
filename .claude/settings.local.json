@@ -14,7 +14,9 @@
       "Read(//mnt/c/Users/tiruk/AppData/Local/**)",
       "Read(//mnt/c/Users/tiruk/AppData/Local/Android/**)",
       "Bash(xargs grep *)",
-      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Android\\\\Android Studio\\\\jbr\"; cd \"D:\\\\Magizhchi SOftware\\\\Source\\\\Magizhchi-Box\\\\frontend\\\\android\"; .\\\\gradlew.bat assembleDebug 2>&1 | Select-Object -Last 15)"
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Android\\\\Android Studio\\\\jbr\"; cd \"D:\\\\Magizhchi SOftware\\\\Source\\\\Magizhchi-Box\\\\frontend\\\\android\"; .\\\\gradlew.bat assembleDebug 2>&1 | Select-Object -Last 15)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Android\\\\Android Studio\\\\jbr\"; cd \"D:\\\\Magizhchi SOftware\\\\Source\\\\Magizhchi-Box\\\\frontend\\\\android\"; .\\\\gradlew.bat assembleDebug 2>&1 | Select-Object -Last 8)",
+      "Bash(mvn clean *)"
     ]
   }
 }
