@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
@@ -43,7 +45,6 @@ public class FolderService {
                     .orElseThrow(() -> new ResourceNotFoundException("Parent folder not found"));
         }
 
-        // Return existing folder if name already taken at this level (idempotent / get-or-create)
         Optional<Folder> existing = (parent == null)
                 ? folderRepository.findByUserAndNameAndParentIsNull(user, name)
                 : folderRepository.findByUserAndNameAndParent(user, name, parent);
@@ -79,13 +80,14 @@ public class FolderService {
         return FolderDto.from(folder);
     }
 
-    public void deleteFolder(User user, Long folderId) {
-        List<String> s3Keys = deleteFolderInDb(user, folderId);
-        s3Keys.forEach(this::deleteFromS3BestEffort);
-    }
-
+    /**
+     * Deletes a folder and all its contents.
+     * All DB changes run inside this transaction. S3 cleanup is scheduled
+     * via afterCommit() so it never rolls back the DB changes on failure.
+     * Called from the controller (external invocation) so @Transactional applies.
+     */
     @Transactional
-    protected List<String> deleteFolderInDb(User user, Long folderId) {
+    public void deleteFolder(User user, Long folderId) {
         Folder folder = folderRepository.findByIdAndUser(folderId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Folder not found"));
 
@@ -111,15 +113,22 @@ public class FolderService {
             userRepository.save(user);
         }
 
-        // Detach already-soft-deleted files so FK is clear for folder delete
+        // Null out folder reference on any remaining (already soft-deleted) files
         fileMetadataRepository.detachFilesFromFolders(ids);
 
-        // Delete folders leaf-first so FK (parent_id) is never violated
+        // Delete folder records leaf-first so FK (parent_id) is never violated
         folderRepository.bulkDeleteByIds(ids);
 
         log.info("Folder '{}' (id={}) and {} sub-folder(s) deleted, {} file(s) removed for user {}",
                 folder.getName(), folderId, ids.size() - 1, activeFiles.size(), user.getEmail());
-        return s3Keys;
+
+        // S3 cleanup runs AFTER the transaction commits — a failed S3 call never rolls back DB changes
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                s3Keys.forEach(FolderService.this::deleteFromS3BestEffort);
+            }
+        });
     }
 
     private void deleteFromS3BestEffort(String s3Key) {
@@ -130,7 +139,7 @@ public class FolderService {
                     .build());
             log.debug("S3 object deleted: {}", s3Key);
         } catch (Exception e) {
-            log.warn("S3 delete failed for key '{}': {}", s3Key, e.getMessage());
+            log.error("S3 delete failed for key '{}': {}", s3Key, e.getMessage());
         }
     }
 
