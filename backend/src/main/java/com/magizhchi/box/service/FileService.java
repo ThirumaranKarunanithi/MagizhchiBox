@@ -13,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -138,15 +136,27 @@ public class FileService {
     }
 
     /**
-     * Soft-deletes the file in DB then removes it from S3.
-     * Called from the controller (external/proxy invocation) so @Transactional applies.
-     * S3 cleanup is scheduled via afterCommit() so it never causes a DB rollback.
+     * Deletes a file from both S3 and the database.
+     * S3 is deleted first; if it fails the exception propagates and DB is unchanged.
+     * Frontend only receives 204 after both succeed.
      */
     @Transactional
     public void deleteFile(User user, Long fileId) {
         FileMetadata metadata = fileMetadataRepository.findByIdAndUserAndDeletedFalse(fileId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("File not found"));
 
+        String s3Key = metadata.getS3Key();
+        String fileName = metadata.getOriginalFileName();
+
+        // 1. Delete from S3 — if this throws, DB transaction rolls back (file stays visible)
+        log.info("S3 delete — bucket='{}' key='{}'", bucketName, s3Key);
+        s3Client.deleteObject(DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(s3Key)
+                .build());
+        log.info("S3 delete succeeded — key='{}'", s3Key);
+
+        // 2. Soft-delete in DB
         metadata.setDeleted(true);
         metadata.setDeletedAt(LocalDateTime.now());
         fileMetadataRepository.save(metadata);
@@ -154,30 +164,7 @@ public class FileService {
         user.setStorageUsedBytes(Math.max(0, user.getStorageUsedBytes() - metadata.getFileSizeBytes()));
         userRepository.save(user);
 
-        String s3Key = metadata.getS3Key();
-        log.info("File soft-deleted in DB: '{}' s3Key='{}' for user {}",
-                metadata.getOriginalFileName(), s3Key, user.getEmail());
-
-        // S3 delete runs after the transaction commits
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                deleteFromS3BestEffort(s3Key);
-            }
-        });
-    }
-
-    private void deleteFromS3BestEffort(String s3Key) {
-        try {
-            log.info("Attempting S3 delete — bucket='{}' key='{}'", bucketName, s3Key);
-            s3Client.deleteObject(DeleteObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(s3Key)
-                    .build());
-            log.info("S3 delete succeeded — key='{}'", s3Key);
-        } catch (Exception e) {
-            log.error("S3 delete failed — bucket='{}' key='{}' error='{}'", bucketName, s3Key, e.getMessage());
-        }
+        log.info("File deleted: '{}' for user {}", fileName, user.getEmail());
     }
 
     private String sanitizeFileName(String fileName) {

@@ -56,6 +56,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
+    @ExceptionHandler(software.amazon.awssdk.services.s3.model.S3Exception.class)
+    public ResponseEntity<Map<String, Object>> handleS3(software.amazon.awssdk.services.s3.model.S3Exception ex) {
+        log.error("S3 error: status={} message={}", ex.statusCode(), ex.getMessage());
+        return error(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Storage operation failed (" + ex.statusCode() + "): " + ex.awsErrorDetails().errorMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
         log.error("Unhandled exception", ex);

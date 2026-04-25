@@ -13,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
@@ -119,28 +117,22 @@ public class FolderService {
         // Delete folder records leaf-first so FK (parent_id) is never violated
         folderRepository.bulkDeleteByIds(ids);
 
+        // Delete all collected S3 objects inline (best-effort; log failures but don't abort)
+        for (String s3Key : s3Keys) {
+            try {
+                log.info("S3 delete — bucket='{}' key='{}'", bucketName, s3Key);
+                s3Client.deleteObject(DeleteObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(s3Key)
+                        .build());
+                log.info("S3 delete succeeded — key='{}'", s3Key);
+            } catch (Exception e) {
+                log.error("S3 delete failed — key='{}' error='{}'", s3Key, e.getMessage());
+            }
+        }
+
         log.info("Folder '{}' (id={}) and {} sub-folder(s) deleted, {} file(s) removed for user {}",
                 folder.getName(), folderId, ids.size() - 1, activeFiles.size(), user.getEmail());
-
-        // S3 cleanup runs AFTER the transaction commits — a failed S3 call never rolls back DB changes
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                s3Keys.forEach(FolderService.this::deleteFromS3BestEffort);
-            }
-        });
-    }
-
-    private void deleteFromS3BestEffort(String s3Key) {
-        try {
-            s3Client.deleteObject(DeleteObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(s3Key)
-                    .build());
-            log.debug("S3 object deleted: {}", s3Key);
-        } catch (Exception e) {
-            log.error("S3 delete failed for key '{}': {}", s3Key, e.getMessage());
-        }
     }
 
     /** Depth-first post-order traversal: children before parents. */
