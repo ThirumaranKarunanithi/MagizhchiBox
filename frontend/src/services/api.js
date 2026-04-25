@@ -12,6 +12,14 @@ api.interceptors.request.use((config) => {
   const deviceId = localStorage.getItem('mb_device_id')
   if (token) config.headers['Authorization'] = `Bearer ${token}`
   if (deviceId) config.headers['X-Device-ID'] = deviceId
+
+  // For FormData (file uploads) the browser MUST set Content-Type itself so
+  // it can include the multipart boundary.  Remove the axios instance default
+  // ('application/json') so the browser can do the right thing.
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type']
+  }
+
   return config
 })
 
