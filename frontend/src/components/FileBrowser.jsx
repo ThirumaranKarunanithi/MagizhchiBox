@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { listFolders, deleteFolder as svcDeleteFolder } from '../services/folderService'
 import { getDownloadUrl, deleteFile } from '../services/fileService'
+import { isNative } from '../utils/platform'
 
 const FILE_ICONS = {
   image: (
@@ -331,21 +332,24 @@ export default function FileBrowser({
                          transition-all select-none
                          ${isFolderSelected ? 'bg-white/60 shadow-sm border border-white/60' : 'hover:bg-white/40 border border-transparent'}`}
             >
-              {/* Folder checkbox */}
+              {/* Folder checkbox — larger touch target on native */}
               <div
                 onClick={(e) => { e.stopPropagation(); toggleOneFolder(folder.id) }}
-                className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors cursor-pointer
-                  ${isFolderSelected ? 'bg-blue-600 border-blue-600' : 'border-gray-300 group-hover:border-blue-400'}`}
+                className={`flex-shrink-0 flex items-center justify-center transition-colors cursor-pointer
+                  ${isNative ? 'w-8 h-8 rounded-lg' : 'w-5 h-5 rounded border-2'}
+                  ${isFolderSelected
+                    ? 'bg-blue-600 border-blue-600'
+                    : isNative ? 'bg-white/40 border border-gray-300' : 'border-gray-300 group-hover:border-blue-400'}`}
               >
                 {isFolderSelected && (
-                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`text-white ${isNative ? 'w-4 h-4' : 'w-3 h-3'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/>
                   </svg>
                 )}
               </div>
 
               {/* Folder icon */}
-              <div className="flex-shrink-0 w-9 h-9 bg-white/50 rounded-xl flex items-center justify-center group-hover:bg-white/80 transition-all shadow-sm">
+              <div className="flex-shrink-0 w-10 h-10 bg-white/50 rounded-xl flex items-center justify-center group-hover:bg-white/80 transition-all shadow-sm">
                 <svg className="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
                 </svg>
@@ -356,13 +360,15 @@ export default function FileBrowser({
                 <p className="text-xs text-gray-400">Folder</p>
               </div>
 
-              {/* Chevron + delete */}
-              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                   onClick={(e) => e.stopPropagation()}>
+              {/* Delete button — always visible on native, hover-only on desktop */}
+              <div
+                className={`flex items-center gap-1 transition-opacity ${isNative ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                onClick={(e) => e.stopPropagation()}
+              >
                 <button
                   onClick={(e) => handleDeleteFolder(e, folder)}
                   disabled={deletingFolderId === folder.id}
-                  className="p-1.5 text-red-400 hover:bg-white/80 rounded-xl transition-all"
+                  className={`text-red-400 hover:bg-white/80 rounded-xl transition-all ${isNative ? 'p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center' : 'p-1.5'}`}
                   title="Delete folder"
                 >
                   {deletingFolderId === folder.id
@@ -390,19 +396,23 @@ export default function FileBrowser({
                             transition-all select-none
                             ${isSelected ? 'bg-white/60 shadow-sm border border-white/60' : 'hover:bg-white/40 border border-transparent'}`}
               >
-                {/* Checkbox */}
+                {/* Checkbox — larger touch target on native */}
                 <div
-                  className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors
-                    ${isSelected ? 'bg-blue-600 border-blue-600' : 'border-gray-300 group-hover:border-blue-400'}`}
+                  onClick={(e) => { e.stopPropagation(); toggleOneFile(file.id) }}
+                  className={`flex-shrink-0 flex items-center justify-center transition-colors
+                    ${isNative ? 'w-8 h-8 rounded-lg' : 'w-5 h-5 rounded border-2'}
+                    ${isSelected
+                      ? 'bg-blue-600 border-blue-600'
+                      : isNative ? 'bg-white/40 border border-gray-300' : 'border-gray-300 group-hover:border-blue-400'}`}
                 >
                   {isSelected && (
-                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className={`text-white ${isNative ? 'w-4 h-4' : 'w-3 h-3'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/>
                     </svg>
                   )}
                 </div>
 
-                <div className="flex-shrink-0 w-9 h-9 bg-white/50 rounded-xl flex items-center justify-center shadow-sm transition-all group-hover:bg-white/80">
+                <div className="flex-shrink-0 w-10 h-10 bg-white/50 rounded-xl flex items-center justify-center shadow-sm transition-all group-hover:bg-white/80">
                   {getIcon(file.contentType)}
                 </div>
 
@@ -413,15 +423,16 @@ export default function FileBrowser({
                   </p>
                 </div>
 
-                {/* Per-file actions */}
+                {/* Per-file actions — always visible on native, hover-only on desktop */}
                 <div
-                  className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className={`flex items-center gap-1 transition-opacity ${isNative ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <button
                     onClick={() => handleDownload(file)}
                     disabled={loadingId === file.id || bulkDeleting}
-                    className="p-1.5 text-[#0284C7] hover:bg-white/80 rounded-xl transition-all disabled:opacity-50"
+                    className={`text-[#0284C7] hover:bg-white/80 rounded-xl transition-all disabled:opacity-50
+                      ${isNative ? 'p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center' : 'p-1.5'}`}
                     title="Download"
                   >
                     {loadingId === file.id
@@ -432,7 +443,8 @@ export default function FileBrowser({
                   <button
                     onClick={() => handleDeleteFile(file)}
                     disabled={deletingFileId === file.id || bulkDeleting}
-                    className="p-1.5 text-red-500 hover:bg-white/80 rounded-xl transition-all disabled:opacity-50"
+                    className={`text-red-500 hover:bg-white/80 rounded-xl transition-all disabled:opacity-50
+                      ${isNative ? 'p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center' : 'p-1.5'}`}
                     title="Delete"
                   >
                     {deletingFileId === file.id

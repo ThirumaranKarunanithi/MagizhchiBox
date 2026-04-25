@@ -109,10 +109,10 @@ export default function Dashboard() {
         />
       )}
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6 px-2">
-          <h2 className="text-3xl font-extrabold text-white drop-shadow-md">
-            Welcome back, {user?.name?.split(' ')[0]} 👋
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="mb-5 px-1">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white drop-shadow-md leading-tight">
+            Welcome back,<br className="sm:hidden" /> {user?.name?.split(' ')[0]} 👋
           </h2>
           <p className="text-blue-50 font-medium text-sm mt-1 drop-shadow-sm">
             Securely store and access your files from anywhere.
@@ -121,10 +121,10 @@ export default function Dashboard() {
 
         {activeTab === 'files' && (
           <div className="space-y-4">
-            {/* Breadcrumb + Back button + New Folder button */}
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              <div className="flex items-center gap-2">
-                {/* Back button — only shown when inside a folder */}
+            {/* Toolbar: breadcrumb + action buttons */}
+            <div className="space-y-2">
+              {/* Row 1: Back + breadcrumb */}
+              <div className="flex items-center gap-2 flex-wrap">
                 {folderPath.length > 0 && (
                   <button
                     onClick={() => {
@@ -132,9 +132,8 @@ export default function Dashboard() {
                       else setFolderPath((prev) => prev.slice(0, -1))
                       setFiles([])
                     }}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-sm font-medium
-                               bg-white/80 hover:bg-white backdrop-blur-sm text-gray-700 transition-all border border-white/60 shadow-sm hover:-translate-y-0.5"
-                    title="Go back"
+                    className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium min-h-[40px]
+                               bg-white/80 hover:bg-white backdrop-blur-sm text-gray-700 transition-all border border-white/60 shadow-sm"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
@@ -143,7 +142,6 @@ export default function Dashboard() {
                   </button>
                 )}
 
-                {/* Breadcrumb */}
                 <nav className="flex items-center gap-1 text-sm flex-wrap">
                   <button
                     onClick={() => { setFolderPath([]); setFiles([]) }}
@@ -164,8 +162,8 @@ export default function Dashboard() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
                       </svg>
                       <button
-                        onClick={() => { navigateTo(idx) }}
-                        className={`font-medium transition-colors ${
+                        onClick={() => navigateTo(idx)}
+                        className={`font-medium transition-colors truncate max-w-[120px] ${
                           idx === folderPath.length - 1
                             ? 'text-white cursor-default drop-shadow-md'
                             : 'text-blue-100 hover:text-white drop-shadow-sm'
@@ -178,18 +176,16 @@ export default function Dashboard() {
                 </nav>
               </div>
 
+              {/* Row 2: Upload + New Folder buttons */}
               <div className="flex items-center gap-2 flex-wrap">
-                {/* Upload buttons */}
                 <FileUpload
                   currentFolderId={currentFolderId}
                   onUploaded={handleUploaded}
                   onFoldersCreated={refreshFolders}
                 />
-
-                {/* New Folder button */}
                 <button
                   onClick={() => setShowCreateModal(true)}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium min-h-[44px]
                              bg-white/80 hover:bg-white backdrop-blur-sm text-gray-700 border border-white/60 shadow-sm transition-all hover:-translate-y-0.5"
                   disabled={creatingFolder}
                 >

@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { uploadFile } from '../services/fileService'
 import { createFolder } from '../services/folderService'
+import { isNative } from '../utils/platform'
 
 export default function FileUpload({ currentFolderId, onUploaded, onFoldersCreated }) {
   const [uploading, setUploading] = useState(false)
@@ -123,7 +124,7 @@ export default function FileUpload({ currentFolderId, onUploaded, onFoldersCreat
       <button
         onClick={() => fileInputRef.current?.click()}
         disabled={uploading}
-        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold
+        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold min-h-[44px]
                    bg-[#0F172A] hover:bg-[#1E293B] text-white shadow-sm transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,19 +134,21 @@ export default function FileUpload({ currentFolderId, onUploaded, onFoldersCreat
         Upload File
       </button>
 
-      {/* Upload Folder button */}
-      <button
-        onClick={() => folderInputRef.current?.click()}
-        disabled={uploading}
-        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium
-                   bg-white/80 hover:bg-white backdrop-blur-sm text-gray-700 border border-white/60
-                   shadow-sm transition-all disabled:opacity-50 hover:-translate-y-0.5 disabled:hover:translate-y-0"
-      >
-        <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
-        </svg>
-        Upload Folder
-      </button>
+      {/* Upload Folder button — hidden on native mobile (webkitdirectory not supported on Android) */}
+      {!isNative && (
+        <button
+          onClick={() => folderInputRef.current?.click()}
+          disabled={uploading}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium min-h-[44px]
+                     bg-white/80 hover:bg-white backdrop-blur-sm text-gray-700 border border-white/60
+                     shadow-sm transition-all disabled:opacity-50 hover:-translate-y-0.5 disabled:hover:translate-y-0"
+        >
+          <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
+          </svg>
+          Upload Folder
+        </button>
+      )}
 
       {/* Inline progress */}
       {uploading && (
