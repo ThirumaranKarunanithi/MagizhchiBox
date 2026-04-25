@@ -20,7 +20,10 @@ export async function uploadFile(file, folderId = null, relativePath = null, onP
   if (folderId != null) formData.append('folderId', folderId)
   if (relativePath) formData.append('relativePath', relativePath)
   const { data } = await api.post('/files/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+    // Do NOT set Content-Type manually — the browser must set it with the
+    // multipart boundary (e.g. multipart/form-data; boundary=----XYZ).
+    // Overriding it strips the boundary and the server cannot parse the body.
+    timeout: 0, // no timeout for uploads — large files on mobile can take minutes
     onUploadProgress: (e) => {
       if (onProgress && e.total) onProgress(Math.round((e.loaded * 100) / e.total))
     },

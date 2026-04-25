@@ -24,7 +24,7 @@ export default function FileUpload({ currentFolderId, onUploaded, onFoldersCreat
         )
         onUploaded(metadata)
       } catch (err) {
-        setError(err.response?.data?.message || `Failed to upload "${file.name}"`)
+        setError(err.response?.data?.message || err.message || `Failed to upload "${file.name}"`)
         break
       }
     }
@@ -84,7 +84,7 @@ export default function FileUpload({ currentFolderId, onUploaded, onFoldersCreat
         )
         onUploaded(metadata)
       } catch (err) {
-        setError(err.response?.data?.message || `Failed to upload "${file.name}"`)
+        setError(err.response?.data?.message || err.message || `Failed to upload "${file.name}"`)
         break
       }
     }

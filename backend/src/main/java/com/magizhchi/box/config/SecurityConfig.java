@@ -76,7 +76,7 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(origins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Device-ID"));
+        config.setAllowedHeaders(List.of("*")); // allow all headers — covers multipart boundary + any mobile WebView headers
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
