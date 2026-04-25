@@ -49,6 +49,10 @@ public class FileService {
 
     @Transactional
     public FileMetadataDto uploadFile(User user, MultipartFile file, Long folderId, String relativePath) throws IOException {
+        // Re-fetch as managed entity inside this transaction to avoid detached-entity issues
+        user = userRepository.findById(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         long fileSize = file.getSize();
 
         if (user.getStorageUsedBytes() + fileSize > user.getStorageQuotaBytes()) {
@@ -142,6 +146,10 @@ public class FileService {
      */
     @Transactional
     public void deleteFile(User user, Long fileId) {
+        // Re-fetch as managed entity to avoid detached-entity / orphanRemoval issues
+        user = userRepository.findById(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         FileMetadata metadata = fileMetadataRepository.findByIdAndUserAndDeletedFalse(fileId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("File not found"));
 

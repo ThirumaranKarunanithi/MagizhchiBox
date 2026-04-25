@@ -37,6 +37,9 @@ public class FolderService {
 
     @Transactional
     public FolderDto createFolder(User user, String name, Long parentId) {
+        user = userRepository.findById(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         Folder parent = null;
         if (parentId != null) {
             parent = folderRepository.findByIdAndUser(parentId, user)
@@ -86,6 +89,9 @@ public class FolderService {
      */
     @Transactional
     public void deleteFolder(User user, Long folderId) {
+        user = userRepository.findById(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         Folder folder = folderRepository.findByIdAndUser(folderId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Folder not found"));
 
