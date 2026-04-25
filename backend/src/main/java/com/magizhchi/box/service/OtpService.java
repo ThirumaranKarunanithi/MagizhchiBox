@@ -21,19 +21,21 @@ public class OtpService {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    @Transactional
+    // Not @Transactional — each repo call auto-commits so the OTP record
+    // is persisted before the email is attempted. An email failure never
+    // rolls back the saved OTP.
     public void generateAndSend(String email) {
-        // Remove any existing OTPs for this email before generating a new one
-        otpRepository.deleteByEmail(email);
+        otpRepository.deleteByEmail(email);   // auto-committed
 
         String otp = String.format("%06d", RANDOM.nextInt(1_000_000));
-
         OtpRecord record = new OtpRecord();
         record.setEmail(email);
         record.setOtp(otp);
         record.setExpiresAt(LocalDateTime.now().plusMinutes(10));
-        otpRepository.save(record);
+        otpRepository.save(record);           // auto-committed
 
+        // Runs outside any DB transaction — an exception here propagates to
+        // the controller (returns 500) but the OTP row is already in the DB.
         emailService.sendOtp(email, otp);
         log.info("OTP generated and sent to {}", email);
     }
