@@ -78,13 +78,6 @@
             <version>${aws.sdk.version}</version>
         </dependency>
 
-        <!-- AWS SES (OTP email) -->
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>ses</artifactId>
-            <version>${aws.sdk.version}</version>
-        </dependency>
-
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
